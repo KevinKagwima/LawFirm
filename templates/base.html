@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+{% block head %}
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>LegalCase | {% block title %}{% endblock %}</title>
+  <meta name="description"
+    content="{% block meta_description %}Professional law firm management system for case tracking, client management, and legal workflow optimization.{% endblock %}">
+  <meta name="keywords"
+    content="law firm, case management, legal software, client management, legal practice management">
+  <meta name="author" content="LegalCase">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="{% block og_title %}LegalCase - Law Firm Management System{% endblock %}">
+  <meta property="og:description"
+    content="{% block og_description %}Professional law firm management system for efficient legal practice.{% endblock %}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ request.url }}">
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="{{ url_for('static', filename='css/base.css') }}" as="style"
+    onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  </noscript>
+
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png') }}">
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "LegalCase",
+        "description": "Professional law firm management system",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web"
+    }
+    </script>
+</head>
+{% endblock %}
+
+<body>
+  <div class="content-box">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="{{ url_for('dashboard.index') }}">
+          <h1>LegalCase</h1>
+        </a>
+        <span onclick="closeSideBar()" id="close-sidebar">&Cross;</span>
+      </div>
+      <nav class="nav">
+        {% block nav %} {% endblock %}
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          {% if current_user.is_authenticated %}
+          <div class="user-info">
+            <div class="user-info-box nav-item" data-tab="profile">
+              <h4>{{ current_user.email|truncate(20) }}</h4>
+            </div>
+            <a href="{{ url_for('auth.logout') }}">
+              <i class="fas fa-right-from-bracket"></i>
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+    <main class="main-content">
+      {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">
+          <div class="flash-content">
+            <p>{{ message }}</p>
+          </div>
+          <button class="flash-close" aria-label="Close message">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+            </svg>
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+      <div class="hamburger" onclick="openSideBar()">
+        <p>&#9776;</p>
+      </div>
+      {% block body %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="{{ url_for('static',filename='js/base.js') }}"></script>
+  {% block script %}{% endblock %}
+</body>
+
+</html>

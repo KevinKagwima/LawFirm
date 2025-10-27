@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Error/errors.css') }}">
+{% endblock %}
+
+{% block title %}
+Forbidden Access (403)
+{% endblock %}
+
+{% block body %}
+<main>
+  <div class="image-box">
+    <img loading="lazy" src="{{ url_for('static', filename='Images/403.png') }}" alt="">
+  </div>
+  <div class="content">
+    <h1>Error! Unauthorized Access (403)</h1>
+    <p>You're not authorized to access this page due to the your credentials</p>
+    <p>This page is only for the site admin</p>
+  </div>
+  <div class="actions">
+    <a href="{{ url_for('users.home') }}">
+      <button>Back Home</button>
+    </a>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Error/errors.css') }}">
+{% endblock %}
+
+{% block title %}
+Something Went Wrong (500)
+{% endblock %}
+
+{% block body %}
+<main>
+  <div class="image-box">
+    <img loading="lazy" src="{{ url_for('static', filename='Images/500.png') }}" alt="">
+  </div>
+  <div class="content">
+    <h1>Oops. Something went wrong (500)</h1>
+    <p>Please try again after a short while</p>
+  </div>
+  <div class="actions">
+    <a href="{{ url_for('users.home') }}">
+      <button>Back Home</button>
+    </a>
+  </div>
+</main>
+{% endblock %}

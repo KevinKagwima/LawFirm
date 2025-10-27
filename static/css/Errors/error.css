@@ -1,0 +1,41 @@
+.container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-box {
+  display: grid;
+  justify-content: center;
+  gap: 2rem;
+  text-align: center;
+}
+
+.error-title h1 {
+  color: var(--dark-blue);
+}
+
+.error-info p {
+  color: var(--black);
+  max-width: 60%;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.error-img i {
+  font-size: 4rem;
+}
+
+.error-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  max-width: max-content;
+  margin-inline: auto;
+}
+
+.error-actions button {
+  color: var(--white);
+}
