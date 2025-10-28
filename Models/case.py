@@ -8,7 +8,11 @@ class Case(BaseModel, db.Model):
   title = db.Column(db.String(200), nullable=False)
   description = db.Column(db.Text())
   status = db.Column(db.Enum('active', 'closed', 'pending'), default='active', nullable=False)
-  case_type = db.Column(db.String(100))  # e.g., 'Criminal', 'Civil', 'Family Law'
+  case_type = db.Column(db.String(100)) # e.g., 'Criminal', 'Civil', 'Family Law'
+  case_number = db.Column(db.String(100))
+  court_name = db.Column(db.String(100))
+  opposing_party = db.Column(db.String(100))
+  opposing_counsel = db.Column(db.String(100))
   
   # Foreign keys
   client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)

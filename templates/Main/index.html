@@ -14,18 +14,22 @@ Home
   <i class="fas fa-home"></i>
   Dashboard
 </a>
-<a data-tab="patients" class="nav-item">
-  <i class="fas fa-user-injured"></i>
+<a data-tab="clients" class="nav-item">
+  <i class="fas fa-users"></i>
   Clients
 </a>
-<a data-tab="transaction" class="nav-item">
+<a data-tab="cases" class="nav-item">
+  <i class="fas fa-gavel"></i>
+  Cases
+</a>
+<a data-tab="payments" class="nav-item">
   <i class="fas fa-wallet"></i>
-  Transactions
+  Payments
 </a>
 {% endblock %}
 
 {% block body %}
-<div id="dashboard" class="tabContent active">
+<div id="dashboard" class="tabContent">
   <div class="header">
     <div class="page-title">
       <h1>Dashboard</h1>
@@ -86,23 +90,12 @@ Home
       </div>
     </div>
     <div class="stat-card">
-      <h3>Total Patients</h3>
-      <div class="value">{{ patients|count }}</div>
+      <h3>Total Clients</h3>
+      <div class="value">{{ clients|count }}</div>
       <div class="trend">
-        {% set male_patients = [] %}
-        {% set female_patients = [] %}
-
-        {% for patient in patients %}
-        {% if patient.gender == "male" %}
-        {{ male_patients.append(patient) or "" }}
-        {% elif patient.gender == "female" %}
-        {{ female_patients.append(patient) or "" }}
-        {% endif %}
-        {% endfor %}
-
         <div class="left">
           <i class="fas fa-mars"></i>
-          {{ male_patients|count }} Male
+          {{ male_clie|count }} Male
         </div>
         <div class="right">
           <i class="fas fa-venus"></i>
@@ -111,7 +104,7 @@ Home
       </div>
     </div>
     <div class="stat-card">
-      <h3>Appointments</h3>
+      <h3>Cases</h3>
       <div class="value">{{ appointments|count }}</div>
       <div class="trend">
         {% set ongoing_appointments = [] %}
@@ -163,92 +156,18 @@ Home
   </div>
   <div class="dashboard-alerts">
   </div>
-  <div class="tabs">
-    <div class="tab active" data-tab="today">Recent Appointments</div>
-  </div>
-  <div class="tab-content active" id="today">
-    <div class="table-box table-boxs">
-      <table>
-        <thead>
-          <tr>
-            <th>Patient</th>
-            <th>Date</th>
-            <th>Purpose</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="analytics-grid">
-    <!-- Most Diagnosed Diseases -->
-    <div class="analytics-card">
-      <div class="card-header">
-        <h2 class="card-title">Most Diagnosed Diseases</h2>
-        <div class="card-icon disease-icon">
-          <i class="fas fa-disease"></i>
-        </div>
-      </div>
-      {% if diagnosis_disease_ids %}
-      <div class="stats-container" id="diseases-container">
-        {% for diagnosis_disease_id, diagnosis_count in diagnosis_disease_ids %}
-        {% for disease in diseases if disease.id == diagnosis_disease_id %}
-        <div class="stat-item">
-          <div class="stat-info">
-            <span>{{ disease.name }}</span>
-          </div>
-          <span class="stat-count">{{ diagnosis_count }} case(s)</span>
-        </div>
-        {% endfor %}
-        {% endfor %}
-      </div>
-      {% else %}
-      <p class="else">No data to show</p>
-      {% endif %}
-    </div>
-
-    <!-- Most Prescribed Medications -->
-    <div class="analytics-card">
-      <div class="card-header">
-        <h2 class="card-title">Most Prescribed Medications</h2>
-        <div class="card-icon medication-icon">
-          <i class="fas fa-pills"></i>
-        </div>
-      </div>
-      {% if prescription_medicine_ids %}
-      <div class="stats-container" id="medications-container">
-        {% for prescription_medicine_id, prescription_count in prescription_medicine_ids %}
-        {% for medicine in medicines if medicine.id == prescription_medicine_id %}
-        <div class="stat-item">
-          <div class="stat-info">
-            <span>{{ medicine.name }}</span>
-          </div>
-          <span class="stat-count">{{ prescription_count }} prescription(s)</span>
-        </div>
-        {% endfor %}
-        {% endfor %}
-      </div>
-      {% else %}
-      <p class="else">No data to show</p>
-      {% endif %}
-    </div>
-  </div>
 </div>
-<div id="patients" class="tabContent">
+<div id="clients" class="tabContent">
   <div class="header">
     <div class="page-title">
       <h1>
-        Patients
-        <span>{{ patients|count }}</span>
+        Clients
+        <span>{{ clients|count }}</span>
       </h1>
     </div>
-    <a href="#">
+    <a href="{{ url_for('client.add_client') }}">
       <button class="btn btn-primary">
-        <i class="fas fa-plus"></i> New Patient
+        <i class="fas fa-plus"></i> New Client
       </button>
     </a>
   </div>
@@ -256,136 +175,95 @@ Home
     <table id="patients-table">
       <thead>
         <tr>
-          <th>Patient ID</th>
+          <th>Client ID</th>
           <th>Full Name</th>
-          <th>Phone</th>
-          <th>Age</th>
-          <th>Gender</th>
+          <th>Phone Number</th>
+          <th>Email Address</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
+        {% for client in clients %}
+        <tr>
+          <td><b>{{ client.unique_id }}</b></td>
+          <td>
+            <a href="{{ url_for('client.client_profile', client_id=client.unique_id) }}">
+              {{ client.first_name }} {{ client.last_name }}
+              <i class="fas fa-arrow-up-right-from-square"></i>
+            </a>
+          </td>
+          <td>{{ client.phone }}</td>
+          <td>{{ client.email }}</td>
+          <td></td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
-<div id="prescription" class="tabContent">
+<div id="cases" class="tabContent active">
   <div class="header">
     <div class="page-title">
       <h1>
-        Prescriptions
-        <span>{{ prescriptions|count }}</span>
+        cases
+        <span>{{ cases|count }}</span>
       </h1>
     </div>
+    <!-- <a href="{{ url_for('client.add_client') }}">
+      <button class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Client
+      </button>
+    </a> -->
   </div>
-  <div class="search-medical-data">
-    <input class="search-inputs" type="text" name="search-prescription" id="prescription-search"
-      placeholder="Search for prescriptions">
+  <div class="table-box">
+    <table id="patients-table">
+      <thead>
+        <tr>
+          <th>Case ID</th>
+          <th>Client</th>
+          <th>Date Opened</th>
+          <th>Date Closed</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for case in cases %}
+        <tr>
+          <td><b>{{ case.unique_id }}</b></td>
+          <td>
+            <a href="{{ url_for('client.client_profile', client_id=case.client.unique_id) }}">
+              {{ case.client.first_name }} {{ case.client.last_name }}
+              <i class="fas fa-arrow-up-right-from-square"></i>
+            </a>
+          </td>
+          <td>{{ case.opened_date }}</td>
+          <td>
+            {% if case.status == "Active" %}
+            ----
+            {% else %}
+            {{ case.closed_date }}
+            {% endif %}
+          </td>
+          <td></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-  {% if prescriptions %}
-  <div class="prescription-box">
-    {% for prescription in prescriptions|sort(attribute="id", reverse=True) %}
-    <div class="prescription-container">
-      <div class="diagnosis-header">
-        <div class="patient-info">
-          <div class="patient-details">
-            <h3>{{ prescription.patient_prescription.first_name }} {{ prescription.patient_prescription.last_name }}
-            </h3>
-            <div class="patient-meta">
-              <span>{{ prescription.patient_prescription.age }} years old</span>
-              <span style="text-transform: capitalize;">{{ prescription.patient_prescription.gender }}</span>
-              <span>ID: PT - {{ prescription.patient_prescription.unique_id }}</span>
-              <span>Date Created: {{ prescription.date_created.strftime("%B %d, %Y") }}</span>
-            </div>
-          </div>
-          <div class="prescription-total">{{ "Tsh {:,}".format(prescription.total) }}</div>
-        </div>
-        <div class="diagnosis-meta">
-          <div class="diagnosis-id">Prescription ID: PS-{{ prescription.unique_id }}</div>
-        </div>
-      </div>
-      <div class="diseases-list">
-        <h2 class="section-title">Prescribed Medication</h2>
-
-        {% if prescription.prescription_details %}
-        <div class="diagnosis-list-box">
-          {% for prescription_detail in prescription.prescription_details %}
-          <div class="disease-item">
-            <div class="disease-icon">
-              <i class="fas fa-disease"></i>
-            </div>
-            <div class="disease-details">
-              <div class="disease-name">
-                {{ prescription_detail.prescribed_medicine.name }}
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-          <i class="fas fa-clipboard-list"></i>
-          <p>No medicine prescribed for this patient</p>
-        </div>
-        {% endif %}
-      </div>
-      <div class="notes-section">
-        <h2 class="section-title">Doctor's Notes</h2>
-        {% if prescription.note %}
-        <div class="notes-content">
-          {{ prescription.note|truncate(200) }}
-        </div>
-        {% else %}
-        <div class="empty-state">
-          <i class="fas fa-comment-medical"></i>
-          <p>No additional notes provided</p>
-        </div>
-        {% endif %}
-      </div>
-      <div class="actions-section">
-        <div class="left-btns">
-          {% if prescription.is_paid %}
-          <span class="status-badge completed">Paid</span>
-          {% elif prescription.appointment_prescription.is_active %}
-          <span class="status-badge pending">Appointment Ongoing</span>
-          {% elif (current_user.staff_role.name == "SuperAdmin" or current_user.staff_role.name == "Admin" or
-          current_user.staff_role.name == "Accountant") and
-          prescription.is_paid == False %}
-          <button id="pay-btn" class="btn btn-outline" data-id="{{ prescription.unique_id }}">
-            <i class="fas fa-wallet"></i>
-            Pay
-          </button>
-          {% else %}
-          <span class="status-badge cancelled">Not Paid</span>
-          {% endif %}
-        </div>
-        <div class="right-btns">
-          <a href="{{ url_for('admin.appointment', appointment_id=prescription.appointment_prescription.unique_id) }}">
-            <button class="btn btn-outline">
-              <i class="fas fa-arrow-right"></i> View in appointment
-            </button>
-          </a>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <p class="else">No data to show</p>
-  {% endif %}
 </div>
-<div id="transaction" class="tabContent">
+<div id="payments" class="tabContent">
   <div class="header">
     <div class="page-title">
       <h1>
-        Transactions
+        Payments
         <span>{{ payments|count }}</span>
       </h1>
     </div>
   </div>
   <div class="search-medical-data">
     <input class="search-inputs" type="text" name="search-transaction" id="transaction-search"
-      placeholder="Search for transacions">
+      placeholder="Search for transactions">
   </div>
   {% if payments %}
   <div class="transaction-box">
@@ -434,13 +312,9 @@ Home
   <p class="else">No data to show</p>
   {% endif %}
 </div>
-
 {% endblock %}
 
 {% block script %}
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 <script src="{{ url_for('static', filename='js/notification.js') }}"></script>
-<script src="{{ url_for('static', filename='js/patient-search.js') }}"></script>
-<script src="{{ url_for('static', filename='js/search.js') }}"></script>
-<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
 {% endblock %}

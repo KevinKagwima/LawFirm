@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static',filename='css/Main/case-details.css')}}">
+{% endblock %}
+
+{% block title %}
+Case Details
+{% endblock %}
+
+{% block nav %}
+<a href="{{ url_for('dashboard.index') }}" class="nav-item">
+  <i class="fas fa-chevron-left"></i>
+  Back
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="case-box container-box">
+    <div class="header">
+      <h1>Case Summary</h1>
+    </div>
+    <div class="case-box-details">
+      <div class="detail-note">
+        <h4>Title</h4>
+        <p>{{ case.title }}</p>
+      </div>
+      <div class="detail-note">
+        <h4>Description</h4>
+        <p>{{ case.description }}</p>
+      </div>
+      <div class="detail-note">
+        <h4>Case Number</h4>
+        <p>{{ case.case_number }}</p>
+      </div>
+      <div class="detail-note">
+        <h4>Opposing Party</h4>
+        <p>{{ case.opposing_party }}</p>
+      </div>
+      <div class="detail-note">
+        <h4>Opposing Counsel</h4>
+        <p>{{ case.opposing_counsel }}</p>
+      </div>
+    </div>
+
+  </div>
+  <div class="case-note-box container-box">
+    <div class="header">
+      <h1>Case Notes</h1>
+      <a href="{{ url_for('case.add_note', case_id=case.unique_id) }}">
+        <button class="btn btn-primary">Add Note</button>
+      </a>
+    </div>
+    <div class="case-box-details">
+      {% if notes %}
+      {% for note in notes %}
+      <div class="case-note">
+        <h4>{{ note.created_at.strftime("%b %d, %Y at %I:%M %p") }}</h4>
+        <p>{{ note.content }}</p>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="no-data">
+        <p>No notes added</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="client-box container-box">
+    <div class="header">
+      <h1>Client's Profile</h1>
+    </div>
+    <div class="case-box-details">
+      <div class="detail-note">
+        <h4>Full Name</h4>
+        <p>{{ client.first_name }} {{ client.last_name }}</p>
+      </div>
+      <div class="detail-note">
+        <h4>Email Address</h4>
+        <p>{{ client.email }}</p>
+      </div>
+      <div class="detail-note">
+        <h4>Phone Number</h4>
+        <p>{{ client.phone }}</p>
+      </div>
+    </div>
+    <div class="case-actions">
+      <a href="{{ url_for('case.close_case', case_id=case.unique_id) }}">
+        <button class="btn btn-primary">Close Case</button>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

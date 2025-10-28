@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static',filename='css/Main/client-profile.css')}}">
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block nav %}
+<a href="{{ url_for('dashboard.index') }}" class="nav-item">
+  <i class="fas fa-chevron-left"></i>
+  Back
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="header">
+  <div class="page-title">
+    <h1>Client Profile</h1>
+  </div>
+</div>
+
+<div class="patient-header">
+  <div class="patient-info">
+    <h2>{{ client.first_name }} {{ client.last_name }}</h2>
+    {% if client.address %}
+    <p>{{ client.address }}</p>
+    {% endif %}
+    <div class="patient-meta">
+      <div class="meta-item">
+        <i class="fas fa-id-card"></i>
+        CID: {{ client.unique_id }}
+      </div>
+      <div class="meta-item">
+        <i class="fas fa-phone"></i>
+        {{ client.phone }}
+      </div>
+      <div class="meta-item">
+        <i class="fas fa-envelope"></i>
+        {{ client.email }}
+      </div>
+    </div>
+  </div>
+  <div class="patient-actions">
+    <a href="#">
+      <button class="btn btn-outline">
+        <i class="fas fa-edit"></i> Edit
+      </button>
+    </a>
+    <a href="{{ url_for('case.add_case', client_id=client.unique_id) }}">
+      <button class="btn btn-primary">
+        <i class="fas fa-calendar-plus"></i> New Case
+      </button>
+    </a>
+  </div>
+</div>
+
+<div class="patient-content">
+  <div class="patient-main">
+    <div class="tabs">
+      <div class="tab active" data-tab="medical">Case History</div>
+      <!-- <div class="tab" data-tab="payments">Payments</div> -->
+    </div>
+
+    <div class="tab-content active" id="medical">
+      <div class="section-title">Recent Case History</div>
+      {% if cases %}
+      <table>
+        <thead>
+          <tr>
+            <th>Case ID</th>
+            <th>Date Opened</th>
+            <th>Date Closed</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for case in cases %}
+          <tr>
+            <td>
+              <a target="_blank" href="{{ url_for('case.case_detail', case_id=case.unique_id) }}">
+                {{ case.unique_id }}
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            </td>
+            <td>{{ case.opened_date.strftime("%b %d, %Y") }}</td>
+            <td>
+              {% if case.closed_date %}
+              {{ case.closed_date.strftime("%b %d, %Y") }}
+              {% else %}
+              Ongoing
+              {% endif %}
+            </td>
+            <td>
+              {% if case.status == 'Active' %}
+              <span class="status-badge pending">Ongoing</span>
+              {% else %}
+              <span class="status-badge completed">Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="else">No case history</p>
+      {% endif %}
+    </div>
+
+    <!-- <div class="tab-content" id="payments">
+      <div class="section-title">Payments</div>
+      {% if patient_payments %}
+      <table>
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Amount Paid</th>
+            <th>Date Paid</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payment in patient_payments|sort(attribute="date_paid", reverse=True) %}
+          <tr>
+            <td>
+              {{ payment.unique_id }}
+            </td>
+            <td>{{ "Tsh {:,}".format(payment.amount) }}</td>
+            <td>
+              {% if payment.date_paid %}
+              {{ payment.date_paid.strftime("%b, %d %Y") }}
+              {% else %}
+              ---
+              {% endif %}
+            </td>
+            <td>
+              {% if payment.is_pending %}
+              <span class="status-badge pending">Pending</span>
+              {% else %}
+              <span class="status-badge completed">Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="else">No Payment records</p>
+      {% endif %}
+    </div> -->
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}

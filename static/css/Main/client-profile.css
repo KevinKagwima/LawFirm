@@ -1,0 +1,267 @@
+.patient-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  background: var(--color-white);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.patient-info h2 {
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.patient-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.meta-item i {
+  margin-right: 0.5rem;
+  color: var(--color-accent-blue);
+}
+
+.patient-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.patient-content {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.patient-main {
+  background: var(--color-white);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  max-height: calc(100svh - 34svh);
+  overflow-y: scroll;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.tab-content {
+  overflow-x: scroll;
+}
+
+table {
+  width: 100%;
+  min-width: 900px;
+  border-radius: 12px;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background-color: var(--color-light-grey-2);
+}
+
+td,
+th {
+  padding: 0.4rem 0.6rem;
+  outline: 1px solid var(--color-light-grey-2);
+}
+
+.medical-history-item,
+.prescription-item {
+  background-color: var(--light-grey);
+  margin-bottom: 0.8rem;
+  border-bottom: 1px solid #f1f5f9;
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+
+.medical-history-item:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.history-date {
+  font-size: 0.875rem;
+  color: var(--color-accent-blue);
+}
+
+.history-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.history-title h4 {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.history-details {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}
+
+#summary {
+  background-color: var(--color-accent-blue);
+  color: var(--color-white);
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+}
+
+.prescription-item {
+  display: flex;
+  margin-bottom: 1rem;
+  /* padding-bottom: 0.5rem; */
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.prescription-item:last-child {
+  margin-bottom: 0;
+  /* padding-bottom: 0; */
+  border-bottom: none;
+}
+
+.prescription-details {
+  flex: 1;
+}
+
+.prescription-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.lab-test-box {
+  background-color: var(--dark-grey);
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.prescription-dosage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.lab-analysis {
+  flex-direction: column;
+}
+
+.lab-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.prescription-dosage h4 {
+  font-size: 0.8rem;
+  color: var(--color-white);
+  padding: 0.2rem 0.5rem;
+  background-color: var(--color-accent-blue);
+  border-radius: 10px;
+}
+
+.lab-analysis-box {
+  background-color: var(--light-grey);
+  padding: 0.6rem;
+  border-radius: 10px;
+}
+
+.lab-analysis h4 {
+  font-size: 1.15rem;
+  padding: 0;
+  background-color: transparent;
+  color: var(--color-text-primary);
+}
+
+.prescription-price {
+  margin-top: 0.5rem;
+}
+
+.prescription-instructions {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-accent-blue);
+}
+
+.prescription-status {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+.status-active {
+  background-color: #e6f7ee;
+  color: #10b981;
+}
+
+.status-completed {
+  background-color: #f1f5f9;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 1024px) {
+  .patient-content {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-header {
+    flex-direction: column;
+    align-items: flex-start;
+    /* text-align: center; */
+  }
+
+  .patient-avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .patient-actions {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+  }
+
+  .patient-actions a button {
+    width: 100%;
+  }
+}
+@media (max-width: 500px) {
+  .patient-actions {
+    grid-template-columns: 1fr;
+  }
+}
