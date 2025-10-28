@@ -29,7 +29,7 @@ Home
 {% endblock %}
 
 {% block body %}
-<div id="dashboard" class="tabContent">
+<div id="dashboard" class="tabContent active">
   <div class="header">
     <div class="page-title">
       <h1>Dashboard</h1>
@@ -85,7 +85,7 @@ Home
 
         <div class="left">
           <i class="fas fa-prescription-bottle"></i>
-          {{ successfull_transactions|count }} prescription{% if successfull_transactions|count != 1 %}s{% endif %} paid
+          {{ successfull_transactions|count }} payments
         </div>
       </div>
     </div>
@@ -125,31 +125,6 @@ Home
         <div class="right">
           <i class="fas fa-check"></i>
           {{ completed_appointments|count }} Completed
-        </div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <h3>Lab Tests</h3>
-      <div class="value">{{ lab_tests|count }}</div>
-      <div class="trend">
-        {% set pending_lab_tests = [] %}
-        {% set approved_lab_tests = [] %}
-
-        {% for lab_test in lab_tests %}
-        {% if lab_test.is_active %}
-        {{ pending_lab_tests.append(lab_test) or "" }}
-        {% elif lab_test.is_approved %}
-        {{ approved_lab_tests.append(lab_test) or "" }}
-        {% endif %}
-        {% endfor %}
-
-        <div class="left">
-          <i class="fas fa-clock"></i>
-          {{ pending_lab_tests|count }} Pending
-        </div>
-        <div class="right">
-          <i class="fas fa-check"></i>
-          {{ approved_lab_tests|count }} Approved
         </div>
       </div>
     </div>
@@ -201,11 +176,11 @@ Home
     </table>
   </div>
 </div>
-<div id="cases" class="tabContent active">
+<div id="cases" class="tabContent">
   <div class="header">
     <div class="page-title">
       <h1>
-        cases
+        Cases
         <span>{{ cases|count }}</span>
       </h1>
     </div>
@@ -239,13 +214,19 @@ Home
           </td>
           <td>{{ case.opened_date }}</td>
           <td>
-            {% if case.status == "Active" %}
+            {% if case.status == "active" %}
             ----
             {% else %}
             {{ case.closed_date }}
             {% endif %}
           </td>
-          <td></td>
+          <td>
+            {% if case.status == "active" %}
+            <span class="status-badge completed">Active</span>
+            {% else %}
+            <span class="status-badge cancelled">Closed</span>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
