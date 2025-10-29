@@ -13,8 +13,8 @@ class Case(BaseModel, db.Model):
   __tablename__ = 'cases'  
   title = db.Column(db.String(200), nullable=False)
   description = db.Column(db.Text())
-  status = db.Column(db.Enum(CaseStatus), default='active', nullable=False)
-  case_type = db.Column(db.String(100)) # e.g., 'Criminal', 'Civil', 'Family Law'
+  status = db.Column(db.Enum(CaseStatus))
+  case_type = db.Column(db.String(100))
   case_number = db.Column(db.String(100))
   court_name = db.Column(db.String(100))
   opposing_party = db.Column(db.String(100))
