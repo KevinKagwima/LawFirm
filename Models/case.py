@@ -1,13 +1,19 @@
 from .base_model import db, BaseModel, get_local_time
 from .payment import Payment
 from .event import Event
+from enum import Enum
+
+class CaseStatus(Enum):
+  ACTIVE = 'active'
+  CLOSED = 'closed'
+  PENDING = 'pending'
 
 class Case(BaseModel, db.Model):
   """Represents a legal case"""
   __tablename__ = 'cases'  
   title = db.Column(db.String(200), nullable=False)
   description = db.Column(db.Text())
-  status = db.Column(db.Enum('active', 'closed', 'pending'), default='active', nullable=False)
+  status = db.Column(db.Enum(CaseStatus), default='active', nullable=False)
   case_type = db.Column(db.String(100)) # e.g., 'Criminal', 'Civil', 'Family Law'
   case_number = db.Column(db.String(100))
   court_name = db.Column(db.String(100))

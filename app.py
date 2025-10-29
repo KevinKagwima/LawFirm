@@ -10,10 +10,12 @@ from Errors.handlers import errors_bp
 from Models.base_model import db
 from Models.users import Lawyers
 from config import Config
+import os
 
 def create_app():
   app = Flask(__name__)
   app.config.from_object(Config)
+  # print(os.environ.get("DATABASE_URL"))
 
   db.init_app(app)
   migrate = Migrate(app, db)
@@ -27,7 +29,9 @@ def create_app():
 
   login_manager = LoginManager()
   login_manager.blueprint_login_views = {
-    'Main': '/auth/signin',
+    'dashboard': '/auth/login',
+    'case': '/auth/login',
+    'client': '/auth/login',
   }
   login_manager.login_message = "Please login to access this page"
   login_manager.login_message_category = "danger"
@@ -43,7 +47,7 @@ def create_app():
   
   return app
 
-app = create_app()
+# app = create_app()
 
 if __name__ == "__main__":
   app = create_app()

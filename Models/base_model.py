@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import random, pytz
 from flask_bcrypt import Bcrypt
+from sqlalchemy.dialects.postgresql import ENUM
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()

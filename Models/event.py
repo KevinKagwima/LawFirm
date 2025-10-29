@@ -1,4 +1,10 @@
 from .base_model import db, BaseModel, get_local_time
+from enum import Enum
+
+class EventType(Enum):
+  COURT_DATE = 'court_date'
+  CLIENT_MEETING = 'client_meeting'
+  FILING_DEADLINE = 'filing_deadline'
 
 class Event(BaseModel, db.Model):
     """Calendar events for cases (court dates, meetings, deadlines)"""
@@ -8,7 +14,7 @@ class Event(BaseModel, db.Model):
     description = db.Column(db.Text)
     event_date = db.Column(db.Date, nullable=False, index=True)
     event_time = db.Column(db.Time, nullable=True)
-    event_type = db.Column(db.Enum('court_date', 'client_meeting', 'filing_deadline', 'other'))
+    event_type = db.Column(db.Enum(EventType))
     
     # Foreign key
     case_id = db.Column(db.Integer, db.ForeignKey('cases.id'), nullable=False)
