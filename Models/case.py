@@ -13,7 +13,7 @@ class Case(BaseModel, db.Model):
   __tablename__ = 'cases'  
   title = db.Column(db.String(200), nullable=False)
   description = db.Column(db.Text())
-  status = db.Column(db.Enum(CaseStatus))
+  status = db.Column(db.Enum(CaseStatus), default=CaseStatus.ACTIVE)
   case_type = db.Column(db.String(100))
   case_number = db.Column(db.String(100))
   court_name = db.Column(db.String(100))
