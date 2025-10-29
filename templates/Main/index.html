@@ -57,7 +57,7 @@ Home
     </div>
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input id="patient-search" type="text" placeholder="Search patients">
+      <input id="patient-search" type="text" placeholder="Search Clients">
       <div class="search-box"></div>
     </div>
   </div>
@@ -69,7 +69,7 @@ Home
         {% for payment in payments %}
         {{ revenue.append(payment.amount) or "" }}
         {% endfor %}
-        {{ "Tsh {:,}".format(revenue|sum) }}
+        {{ "Ksh {:,}".format(revenue|sum) }}
       </div>
       <div class="trend">
         {% set successfull_transactions = [] %}
