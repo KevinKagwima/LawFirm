@@ -87,7 +87,6 @@ def add_case(client_id):
         title=form.title.data.strip(),
         description=form.description.data.strip() if form.description.data else None,
         case_type=form.case_type.data,
-        status=form.status.data,
         court_name=form.court_name.data.strip() if form.court_name.data else None,
         case_number=form.case_number.data.strip() if form.case_number.data else None,
         opposing_party=form.opposing_party.data.strip() if form.opposing_party.data else None,

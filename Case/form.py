@@ -26,11 +26,6 @@ class CaseForm(FlaskForm):
       ('immigration', 'Immigration Law'),
       ('other', 'Other')
   ], validators=[DataRequired()])
-  status = SelectField('Case Status', choices=[
-      ('active', 'Active'),
-      ('pending', 'Pending'),
-      ('closed', 'Closed')
-  ], default='active')
   court_name = StringField('Court Name', validators=[
       Optional(),
       Length(max=200)
