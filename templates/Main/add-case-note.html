@@ -2,7 +2,7 @@
 
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" href="{{url_for('static',filename='css/Main/add-client.css')}}">
+<link rel="stylesheet" href="{{url_for('static',filename='css/form.css')}}">
 {% endblock %}
 
 {% block title %}
@@ -10,7 +10,7 @@ New Case Note
 {% endblock %}
 
 {% block nav %}
-<a href="{{ url_for('dashboard.index') }}" class="nav-item">
+<a href="{{ back_url }}" class="nav-item">
   <i class="fas fa-chevron-left"></i>
   Back
 </a>
@@ -18,32 +18,33 @@ New Case Note
 
 {% block body %}
 <div class="container">
-  <div class="auth-container">
+  <div class="form-header">
     <h1>New Case Note</h1>
-    <form method="post" action="{{ url_for('case.add_note', case_id=case.unique_id) }}" novalidate
-      class="needs-validation">
-      {{ form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ form.content.label(class="form-label") }}
-        {{ form.content(class="form-control", placeholder="Enter Case Note (Max 2,000 characters)", required=true) }}
-        {% for error in form.content.errors %}
-        <div class="invalid-feedback">{{ error }}</div>
-        {% endfor %}
-      </div>
-
-      <div class="form-group">
-        {{ form.is_internal.label(class="form-label") }}
-        {{ form.is_internal(class="form-control", required=true)
-        }}
-        {% for error in form.is_internal.errors %}
-        <div class="invalid-feedback">{{ error }}</div>
-        {% endfor %}
-      </div>
-
-      <button class="btn btn-primary" type="submit">Add Note</button>
-    </form>
+    <p>Add new details of the case</p>
   </div>
+  <form method="post" action="{{ url_for('case.add_note', case_id=case.unique_id) }}" novalidate
+    class="needs-validation">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group extend">
+      {{ form.content.label(class="form-label") }}
+      {{ form.content(class="form-control", placeholder="Enter Case Note (Max 2,000 characters)", required=true) }}
+      {% for error in form.content.errors %}
+      <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="form-group extend">
+      {{ form.is_internal.label(class="form-label") }}
+      {{ form.is_internal(class="form-control", required=true)
+      }}
+      {% for error in form.is_internal.errors %}
+      <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <button class="btn btn-primary" type="submit">Add Note</button>
+  </form>
 </div>
 {% endblock %}
 

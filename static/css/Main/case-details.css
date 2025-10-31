@@ -1,11 +1,27 @@
 .container {
   display: grid;
+  gap: 2rem;
+}
+
+.case-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.case-summary p {
+  margin-right: 1rem;
+}
+
+.container-content {
+  display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 1rem;
   padding-left: 0.1rem;
 }
 
-.container-box {
+.container-box,
+.case-note {
   padding: 1rem;
   background-color: var(--color-white);
   border-radius: var(--radius-sm);
@@ -13,12 +29,61 @@
   height: max-content;
 }
 
+.case-note-box {
+  background-color: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
 .header h1 {
   font-size: 1.2rem;
 }
 
+.case-box,
+.client-box {
+  max-width: 15rem;
+  min-width: 15rem;
+  position: sticky;
+  top: 0;
+}
+
+.case-box-details {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.case-note h4 {
+  font-size: 0.8rem;
+}
+
+.case-note p {
+  font-size: 1.1rem;
+}
+
+.case-actions {
+  margin-top: 1rem;
+}
+
+.case-actions a button {
+  width: 100%;
+  background-color: var(--danger);
+}
+
+.internal-badge,
+.external-badge {
+  padding: 0;
+  background-color: transparent;
+  color: var(--danger);
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.external-badge {
+  color: var(--warning);
+}
+
 @media screen and (max-width: 1200px) {
-  .container {
+  .container-content {
     grid-template-columns: 1fr;
   }
 }

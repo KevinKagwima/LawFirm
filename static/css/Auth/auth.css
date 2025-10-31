@@ -52,12 +52,6 @@ form {
   gap: 0.3rem;
 }
 
-.invalid-feedback {
-  color: var(--danger);
-  font-size: 0.8rem;
-  line-height: 1;
-}
-
 .checkbox {
   display: flex;
   align-items: center;

@@ -102,7 +102,7 @@ def add_case(client_id):
       if form.description.data:
         initial_note = CaseNote(
           case_id=case.id,
-          content=f"Case opened: {form.description.data}",
+          content="Case opened",
           is_internal=False
         )
         db.session.add(initial_note)
@@ -118,7 +118,8 @@ def add_case(client_id):
   
   context = {
     "form": form,
-    "client": client
+    "client": client,
+    "back_url": request.referrer,
   }
 
   return render_template('Main/new-case.html', **context)
@@ -202,7 +203,8 @@ def add_note(case_id):
 
   context = {
     "form": form,
-    "case": case
+    "case": case,
+    "back_url": request.referrer,
   }
 
   return render_template("Main/add-case-note.html", **context)

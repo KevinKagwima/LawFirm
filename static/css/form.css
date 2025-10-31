@@ -1,0 +1,55 @@
+.container {
+  display: grid;
+  gap: 2rem;
+}
+
+.form-header {
+  display: grid;
+}
+
+.form-header p {
+  color: var(--color-text-secondary);
+}
+
+form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+input,
+select,
+textarea {
+  font-size: 1rem;
+  background-color: var(--color-light-grey-2);
+}
+
+.btn {
+  font-size: 1rem;
+}
+
+.extend,
+.btn {
+  grid-column: 1/-1;
+}
+
+.form-group {
+  display: grid;
+  gap: 0.4rem;
+}
+
+@media screen and (max-width: 700px) {
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 0.8rem;
+  }
+}

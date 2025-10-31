@@ -146,6 +146,12 @@ button,
   color: var(--color-white);
 }
 
+.invalid-feedback {
+  color: var(--danger);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
 input,
 select,
 textarea {
@@ -155,10 +161,12 @@ textarea {
   padding: 1em;
   border-radius: var(--radius-md);
   width: 100%;
+  box-shadow: var(--shadow-sm);
 }
 
 textarea {
   resize: vertical;
+  min-height: 8rem;
 }
 
 input:focus,
@@ -169,7 +177,7 @@ textarea:focus {
 
 .content-box {
   display: flex;
-  gap: 2rem;
+  gap: 1.9rem;
   height: 100svh;
 }
 
@@ -296,7 +304,7 @@ textarea:focus {
 .main-content {
   height: 100%;
   flex-grow: 1;
-  padding: 2rem 2rem 0.5rem 0;
+  padding: 2rem 2rem 0.5rem 0.1rem;
   background-color: var(--color-light-grey-3);
   position: relative;
   overflow-y: scroll;
@@ -571,6 +579,7 @@ textarea:focus {
   }
 
   .main-content {
+    padding-block: 0.5rem 1rem;
     padding-left: 2rem;
     margin-left: -17rem;
   }

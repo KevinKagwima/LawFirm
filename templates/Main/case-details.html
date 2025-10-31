@@ -18,80 +18,88 @@ Case Details
 
 {% block body %}
 <div class="container">
-  <div class="case-box container-box">
-    <div class="header">
-      <h1>Case Summary</h1>
+  <div class="container-header">
+    <h1>{{ case.title }}</h1>
+    <div class="case-summary">
+      <p>Case No: {{ case.case_number }} | {{ case.court_name }}</p>
+      <p><b>Opposing Party:</b> {{ case.opposing_party }}</p>
+      <p><b>Opposing Counsel:</b> {{ case.opposing_counsel }}</p>
     </div>
-    <div class="case-box-details">
-      <div class="detail-note">
-        <h4>Title</h4>
-        <p>{{ case.title }}</p>
+  </div>
+  <div class="container-content">
+    <div class="case-box container-box">
+      <div class="header">
+        <h1>Case Summary</h1>
       </div>
-      <div class="detail-note">
-        <h4>Description</h4>
-        <p>{{ case.description }}</p>
+      <div class="case-box-details">
+        <div class="detail-note">
+          <h4>Description</h4>
+          <p>{{ case.description }}</p>
+        </div>
       </div>
-      <div class="detail-note">
-        <h4>Case Number</h4>
-        <p>{{ case.case_number }}</p>
+
+    </div>
+
+    <div class="case-note-box container-box">
+      <div class="header">
+        <h1>Case Notes</h1>
+        <a href="{{ url_for('case.add_note', case_id=case.unique_id) }}">
+          <button class="btn btn-primary">Add Note</button>
+        </a>
       </div>
-      <div class="detail-note">
-        <h4>Opposing Party</h4>
-        <p>{{ case.opposing_party }}</p>
-      </div>
-      <div class="detail-note">
-        <h4>Opposing Counsel</h4>
-        <p>{{ case.opposing_counsel }}</p>
+      <div class="case-box-details">
+        {% if notes %}
+        {% for note in notes %}
+        <div class="case-note {% if note.is_internal %}internal{% endif %}">
+          <div class="case-note-header">
+            <h4>{{ note.created_at.strftime("%b %d, %Y at %I:%M %p") }}</h4>
+          </div>
+          <div class="case-note-body">
+            <p>{{ note.content }}</p>
+          </div>
+          <div class="case-note-footer">
+            {% if note.is_internal %}
+            <span class="status-badge internal-badge" title="This note is only visible to you">internal</span>
+            {% else %}
+            <span class="status-badge external-badge"
+              title="This note is visible to both you and the client">public</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="no-data">
+          <p>No notes added</p>
+        </div>
+        {% endif %}
       </div>
     </div>
 
-  </div>
-  <div class="case-note-box container-box">
-    <div class="header">
-      <h1>Case Notes</h1>
-      <a href="{{ url_for('case.add_note', case_id=case.unique_id) }}">
-        <button class="btn btn-primary">Add Note</button>
-      </a>
-    </div>
-    <div class="case-box-details">
-      {% if notes %}
-      {% for note in notes %}
-      <div class="case-note">
-        <h4>{{ note.created_at.strftime("%b %d, %Y at %I:%M %p") }}</h4>
-        <p>{{ note.content }}</p>
+    <div class="client-box container-box">
+      <div class="header">
+        <h1>Client's Profile</h1>
       </div>
-      {% endfor %}
-      {% else %}
-      <div class="no-data">
-        <p>No notes added</p>
+      <div class="case-box-details">
+        <div class="detail-note">
+          <h4>Full Name</h4>
+          <p>{{ client.first_name }} {{ client.last_name }}</p>
+        </div>
+        <div class="detail-note">
+          <h4>Email Address</h4>
+          <p>{{ client.email }}</p>
+        </div>
+        <div class="detail-note">
+          <h4>Phone Number</h4>
+          <p>{{ client.phone }}</p>
+        </div>
       </div>
-      {% endif %}
+      <div class="case-actions">
+        <a href="{{ url_for('case.close_case', case_id=case.unique_id) }}">
+          <button class="btn btn-primary">Close Case</button>
+        </a>
+      </div>
     </div>
-  </div>
 
-  <div class="client-box container-box">
-    <div class="header">
-      <h1>Client's Profile</h1>
-    </div>
-    <div class="case-box-details">
-      <div class="detail-note">
-        <h4>Full Name</h4>
-        <p>{{ client.first_name }} {{ client.last_name }}</p>
-      </div>
-      <div class="detail-note">
-        <h4>Email Address</h4>
-        <p>{{ client.email }}</p>
-      </div>
-      <div class="detail-note">
-        <h4>Phone Number</h4>
-        <p>{{ client.phone }}</p>
-      </div>
-    </div>
-    <div class="case-actions">
-      <a href="{{ url_for('case.close_case', case_id=case.unique_id) }}">
-        <button class="btn btn-primary">Close Case</button>
-      </a>
-    </div>
   </div>
 </div>
 {% endblock %}

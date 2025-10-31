@@ -18,13 +18,10 @@ def add_client():
   if form.validate_on_submit():
     try:
       if form.email.data:
-        existing_client = Client.query.filter_by(
-          lawyer_id=current_user.id,
-          email=form.email.data.lower().strip()
-        ).first()
+        existing_client = Client.query.filter_by(lawyer_id=current_user.id, email=form.email.data.lower().strip()).first()
         
         if existing_client:
-          flash('A client with this email already exists.', 'danger')
+          flash('A client with this email already exists', 'danger')
           return redirect(url_for('client.add_client'))
       
       # Create new client
@@ -43,7 +40,7 @@ def add_client():
       db.session.commit()
       
       flash(f'Client {client.full_name} added successfully!', 'success')
-      return redirect(url_for('dashboard.index'))
+      return redirect(url_for('client.client_profile', client_id=client.unique_id))
               
     except Exception as e:
       db.session.rollback()
@@ -51,7 +48,8 @@ def add_client():
       return redirect(url_for('client.add_client'))
   
   context = {
-     "form": form
+     "form": form,
+     "back_url": request.referrer,
   }
 
   return render_template('Main/add-client.html', **context)
@@ -61,25 +59,18 @@ def add_client():
 def client_profile(client_id):
   """View client details and their cases"""
   try:
-    client = Client.query.filter_by(
-      unique_id=client_id,
-      lawyer_id=current_user.id
-    ).first()
+    client = Client.query.filter_by(unique_id=client_id, lawyer_id=current_user.id).first()
     
     # Get client's cases
-    cases = Case.query.filter_by(
-      client_id=client.id
-    ).order_by(Case.opened_date.desc()).all()
+    cases = Case.query.filter_by(client_id=client.id).order_by(Case.opened_date.desc()).all()
     
     context = {
       "client": client,
       "cases": cases,
+      "back_url": request.referrer,
     }
 
-    return render_template(
-      'Main/client-profile.html',
-      **context
-    )
+    return render_template('Main/client-profile.html', **context)
       
   except Exception as e:
     flash(f'Error: {str(e)}', 'danger')

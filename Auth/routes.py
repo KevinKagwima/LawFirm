@@ -22,11 +22,8 @@ password_reset_tokens = {}
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-  # if current_user.is_authenticated:
-  #   return redirect(url_for('dashboard.index'))
-  
   form = RegistrationForm()
-  
+
   if form.validate_on_submit():
     try:
       existing_user = Lawyers.query.filter_by(email=form.email.data).first()
@@ -54,7 +51,7 @@ def register():
   context = {
     "form": form
   }
-  
+
   return render_template('Auth/register.html', **context)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
