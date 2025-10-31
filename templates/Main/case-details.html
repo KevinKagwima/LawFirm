@@ -19,7 +19,14 @@ Case Details
 {% block body %}
 <div class="container">
   <div class="container-header">
-    <h1>{{ case.title }}</h1>
+    <div class="container-header-box">
+      <h1>{{ case.title }}</h1>
+      {% if case.status %}
+      <span class="status-badge completed">Ongoing</span>
+      {% else %}
+      <span class="status-badge cancelled">Closed</span>
+      {% endif %}
+    </div>
     <div class="case-summary">
       <p>Case No: {{ case.case_number }} | {{ case.court_name }}</p>
       <p><b>Opposing Party:</b> {{ case.opposing_party }}</p>
@@ -53,6 +60,14 @@ Case Details
         <div class="case-note {% if note.is_internal %}internal{% endif %}">
           <div class="case-note-header">
             <h4>{{ note.created_at.strftime("%b %d, %Y at %I:%M %p") }}</h4>
+            <div class="case-note-actions">
+              <a href="#">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a href="{{ url_for('case.remove_case_note', note_id=note.unique_id, case_id=case.unique_id) }}">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
           </div>
           <div class="case-note-body">
             <p>{{ note.content }}</p>

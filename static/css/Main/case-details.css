@@ -3,6 +3,13 @@
   gap: 2rem;
 }
 
+.container-header-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .case-summary {
   display: flex;
   flex-wrap: wrap;
@@ -58,6 +65,27 @@
 
 .case-note p {
   font-size: 1.1rem;
+}
+
+.case-note-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.case-note-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.fa-edit {
+  color: var(--warning);
+}
+
+.fa-trash {
+  color: var(--danger);
 }
 
 .case-actions {

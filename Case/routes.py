@@ -209,6 +209,34 @@ def add_note(case_id):
 
   return render_template("Main/add-case-note.html", **context)
 
+@case_bp.route('/remove-note/<int:note_id>/<int:case_id>')
+@login_required
+def remove_case_note(note_id, case_id):
+  """Add a note to a case"""
+  case = Case.query.filter_by(unique_id=case_id).first()
+
+  if not case:
+    flash("Case not found", "danger")
+    return redirect(request.referrer)
+
+  case_note = CaseNote.query.filter_by(unique_id=note_id, case_id=case.id).first()
+
+  if not case_note:
+    flash("Case note not found", "danger")
+    return redirect(url_for('case.case_detail', case_id=case.unique_id))
+      
+  try:
+    db.session.delete(case_note)
+    db.session.commit()
+    
+    flash('Note removed successfully!', 'success')
+    return redirect(url_for('case.case_detail', case_id=case.unique_id))
+        
+  except Exception as e:
+    db.session.rollback()
+    flash(f'Error:{str(e)}', 'danger')
+    return redirect(url_for('case.case_detail', case_id=case.unique_id))
+
 @case_bp.route('/<int:case_id>/add_payment', methods=['POST'])
 @login_required
 def add_payment(case_id):
