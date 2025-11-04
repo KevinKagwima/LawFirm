@@ -42,10 +42,14 @@ Home
         <i class="fas fa-envelope"></i>
         {{ client.email }}
       </div>
+      <div class="meta-item">
+        <i class="fas fa-user"></i>
+        {{ client.client_type }}
+      </div>
     </div>
   </div>
   <div class="patient-actions">
-    <a href="#">
+    <a href="{{ url_for('client.edit_client', client_id=client.unique_id) }}">
       <button class="btn btn-outline">
         <i class="fas fa-edit"></i> Edit
       </button>
@@ -81,8 +85,8 @@ Home
           {% for case in cases %}
           <tr>
             <td>
-              <a target="_blank" href="{{ url_for('case.case_detail', case_id=case.unique_id) }}">
-                {{ case.unique_id }}
+              <a href="{{ url_for('case.case_detail', case_id=case.alias) }}">
+                {{ case.alias }}
                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </a>
             </td>
@@ -91,14 +95,14 @@ Home
               {% if case.closed_date %}
               {{ case.closed_date.strftime("%b %d, %Y") }}
               {% else %}
-              Ongoing
+              ----
               {% endif %}
             </td>
             <td>
-              {% if case.status == 'Active' %}
-              <span class="status-badge pending">Ongoing</span>
+              {% if case.status.ACTIVE %}
+              <span class="status-badge pending">Open</span>
               {% else %}
-              <span class="status-badge completed">Completed</span>
+              <span class="status-badge completed">Closed</span>
               {% endif %}
             </td>
           </tr>

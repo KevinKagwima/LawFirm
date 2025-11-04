@@ -1,0 +1,34 @@
+.case-box,
+.case {
+  display: grid;
+  gap: 1rem;
+}
+
+.case {
+  background-color: var(--color-white);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.case-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+.stat {
+  display: grid;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-light-grey-2);
+}
+
+.stat h4 {
+  color: var(--color-text-secondary);
+}
+
+.case-actions a button {
+  width: 100%;
+}

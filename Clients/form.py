@@ -19,14 +19,14 @@ class ClientForm(FlaskForm):
   ])
   phone = TelField('Phone Number', validators=[
     Optional(),
-    Length(max=20)
+    Length(max=10, min=10)
   ])
   address = TextAreaField('Address', validators=[
     Optional(),
     Length(max=500)
   ])
   client_type = SelectField('Client Type', choices=[
-    ('individual', 'Individual'),
-    ('business', 'Business'),
-    ('organization', 'Organization')
+    ('Individual', 'Individual'),
+    ('Business', 'Business'),
+    ('Organization', 'Organization')
   ], default='individual')

@@ -12,6 +12,7 @@ class Case(BaseModel, db.Model):
   """Represents a legal case"""
   __tablename__ = 'cases'  
   title = db.Column(db.String(200), nullable=False)
+  alias = db.Column(db.String(200), nullable=False)
   description = db.Column(db.Text())
   status = db.Column(db.Enum(CaseStatus), default=CaseStatus.ACTIVE)
   case_type = db.Column(db.String(100))
@@ -46,7 +47,7 @@ class CaseNote(BaseModel, db.Model):
   case_id = db.Column(db.Integer, db.ForeignKey('cases.id'), nullable=False)
   
   # For future client portal: internal notes vs client-visible notes
-  is_internal = db.Column(db.Boolean, default=False)
+  is_internal = db.Column(db.Boolean)
   
   def __repr__(self):
     return f'<CaseNote {self.id} - Case {self.case_id}>'

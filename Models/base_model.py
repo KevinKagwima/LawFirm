@@ -8,7 +8,7 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 def get_local_time():
-  utc_timezone = datetime.now(pytz.utc) + timedelta(hours=3)
+  utc_timezone = datetime.now(pytz.utc)
   local_tz = pytz.timezone('Africa/Nairobi')
   return utc_timezone.astimezone(local_tz)
 

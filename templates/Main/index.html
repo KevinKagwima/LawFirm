@@ -14,6 +14,7 @@ Home
   <i class="fas fa-home"></i>
   Dashboard
 </a>
+{% if current_user.role_name == "Lawyer" %}
 <a data-tab="clients" class="nav-item">
   <i class="fas fa-users"></i>
   Clients
@@ -26,6 +27,7 @@ Home
   <i class="fas fa-wallet"></i>
   Payments
 </a>
+{% endif %}
 {% endblock %}
 
 {% block body %}
@@ -55,11 +57,13 @@ Home
         </div>
       </div>
     </div>
+    {% if current_user.role_name == "Lawyer" %}
     <div class="search-bar">
       <i class="fas fa-search"></i>
       <input id="patient-search" type="text" placeholder="Search Clients">
       <div class="search-box"></div>
     </div>
+    {% endif %}
   </div>
   <div class="stats-grid">
     <div class="stat-card">
@@ -132,6 +136,7 @@ Home
   <div class="dashboard-alerts">
   </div>
 </div>
+{% if current_user.role_name == "Lawyer" %}
 <div id="clients" class="tabContent">
   <div class="header">
     <div class="page-title">
@@ -199,30 +204,34 @@ Home
           <th>Date Opened</th>
           <th>Date Closed</th>
           <th>Status</th>
-          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for case in cases %}
         <tr>
-          <td><b>{{ case.unique_id }}</b></td>
+          <td>
+            <a href="{{ url_for('case.case_detail', case_id=case.alias) }}">
+              <b>{{ case.alias }}</b>
+              <i class="fas fa-arrow-up-right-from-square"></i>
+            </a>
+          </td>
           <td>
             <a href="{{ url_for('client.client_profile', client_id=case.client.unique_id) }}">
               {{ case.client.first_name }} {{ case.client.last_name }}
               <i class="fas fa-arrow-up-right-from-square"></i>
             </a>
           </td>
-          <td>{{ case.opened_date }}</td>
+          <td>{{ case.opened_date.strftime("%b %d, %Y at %I:%M %p") }}</td>
           <td>
-            {% if case.status == "active" %}
+            {% if case.status.ACTIVE %}
             ----
             {% else %}
             {{ case.closed_date }}
             {% endif %}
           </td>
           <td>
-            {% if case.status == "active" %}
-            <span class="status-badge completed">Active</span>
+            {% if case.status.ACTIVE %}
+            <span class="status-badge completed">Open</span>
             {% else %}
             <span class="status-badge cancelled">Closed</span>
             {% endif %}
@@ -293,6 +302,7 @@ Home
   <p class="else">No data to show</p>
   {% endif %}
 </div>
+{% endif %}
 {% endblock %}
 
 {% block script %}

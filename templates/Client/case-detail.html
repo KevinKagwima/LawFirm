@@ -10,17 +10,10 @@ Case Details
 {% endblock %}
 
 {% block nav %}
-{% if current_user.role_name == "Lawyer" %}
-<a href="{{ url_for('dashboard.index') }}" class="nav-item">
-  <i class="fas fa-chevron-left"></i>
-  Back
-</a>
-{% else %}
 <a href="{{ url_for('dashboard.client_index') }}" class="nav-item">
   <i class="fas fa-chevron-left"></i>
   Back
 </a>
-{% endif %}
 {% endblock %}
 
 {% block body %}
@@ -44,11 +37,6 @@ Case Details
     <div class="case-box container-box">
       <div class="header">
         <h1>Case Summary</h1>
-        {% if current_user.role_name == "Lawyer" %}
-        <a href="{{ url_for('case.edit_case', case_id=case.unique_id) }}">
-          <i title="Edit case details" class="fas fa-edit"></i>
-        </a>
-        {% endif %}
       </div>
       <div class="case-box-details">
         <div class="detail-note">
@@ -66,11 +54,6 @@ Case Details
     <div class="case-note-box container-box">
       <div class="header">
         <h1>Case Notes</h1>
-        {% if current_user.role_name == "Lawyer" %}
-        <a href="{{ url_for('case.add_note', case_id=case.unique_id) }}">
-          <button class="btn btn-primary">Add Note</button>
-        </a>
-        {% endif %}
       </div>
       <div class="case-box-details">
         {% if notes %}
@@ -78,16 +61,6 @@ Case Details
         <div class="case-note">
           <div class="case-note-header">
             <h4>{{ note.created_at.strftime("%b %d, %Y at %I:%M %p") }}</h4>
-            {% if current_user.role_name == "Lawyer" %}
-            <div class="case-note-actions">
-              <a href="{{ url_for('case.edit_case_note', case_id=case.alias, case_note_id=note.unique_id) }}">
-                <i class="fas fa-edit"></i>
-              </a>
-              <a href="{{ url_for('case.remove_case_note', note_id=note.unique_id, case_id=case.alias) }}">
-                <i class="fas fa-trash"></i>
-              </a>
-            </div>
-            {% endif %}
           </div>
           <div class="case-note-body">
             <p>{{ note.content }}</p>
@@ -112,52 +85,24 @@ Case Details
 
     <div class="client-box container-box">
       <div class="header">
-        {% if current_user.role_name == "Lawyer" %}
-        <h1>Client's Profile</h1>
-        {% elif current_user.role_name == "Client" %}
         <h1>Lawyer's Profile</h1>
-        {% endif %}
       </div>
       <div class="case-box-details">
         <div class="detail-note">
           <h4>Full Name</h4>
-          {% if current_user.role_name == "Lawyer" %}
-          <a style="display: flex; align-items: center; gap:.2rem;"
-            href="{{ url_for('client.client_profile', client_id=client.unique_id) }}">
-            <p>{{ client.first_name }} {{ client.last_name }}</p>
-            <i class="fas fa-arrow-up-right-from-square"></i>
-          </a>
-          {% elif current_user.role_name == "Client" %}
-          <p>{{ client.lawyer.first_name }} {{ client.lawyer.last_name }}</p>
-          {% endif %}
+          <p>{{ lawyer.first_name }} {{ lawyer.last_name }}</p>
         </div>
         <div class="detail-note">
           <h4>Email Address</h4>
-          {% if current_user.role_name == "Lawyer" %}
-          <p>{{ client.email }}</p>
-          {% elif current_user.role_name == "Client" %}
-          <p>{{ client.lawyer.email }}</p>
-          {% endif %}
+          <p>{{ lawyer.email }}</p>
         </div>
-        {% if current_user.role_name == "Lawyer" and client.phone %}
+        {% if lawyer.phone %}
         <div class="detail-note">
           <h4>Phone Number</h4>
-          <p>{{ client.phone }}</p>
-        </div>
-        {% elif current_user.role_name == "Client" and client.lawyer.phone %}
-        <div class="detail-note">
-          <h4>Phone Number</h4>
-          <p>{{ client.lawyer.phone }}</p>
+          <p>{{ lawyer.phone }}</p>
         </div>
         {% endif %}
       </div>
-      {% if current_user.role_name == "Lawyer" %}
-      <div class="case-actions">
-        <a href="{{ url_for('case.close_case', case_id=case.unique_id) }}">
-          <button class="btn btn-primary">Close Case</button>
-        </a>
-      </div>
-      {% endif %}
     </div>
 
   </div>

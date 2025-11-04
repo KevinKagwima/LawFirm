@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static',filename='css/form.css')}}">
+{% endblock %}
+
+{% block title %}
+Edit Case Note
+{% endblock %}
+
+{% block nav %}
+<a href="{{ back_url }}" class="nav-item">
+  <i class="fas fa-chevron-left"></i>
+  Back
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="form-header">
+    <h1>Edit Case Note</h1>
+    <p>Update details of the case</p>
+  </div>
+  <form method="post"
+    action="{{ url_for('case.edit_case_note', case_id=case.alias, case_note_id=case_note.unique_id) }}" novalidate
+    class="needs-validation">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group extend">
+      {{ form.content.label(class="form-label") }}
+      {{ form.content(class="form-control", placeholder="Enter Case Note (Max 2,000 characters)", required=true) }}
+      {% for error in form.content.errors %}
+      <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="form-group extend">
+      {{ form.is_internal.label(class="form-label") }}
+      {{ form.is_internal(class="form-control", required=true)
+      }}
+      {% for error in form.is_internal.errors %}
+      <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <button class="btn btn-primary" type="submit">Update Note</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

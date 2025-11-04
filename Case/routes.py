@@ -1,76 +1,21 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, make_response
 from flask_login import login_required, current_user
 from Models.base_model import db, get_local_time
-from Models.users import Lawyers, Client
+from Models.users import Client, Lawyers
 from Models.case import Case, CaseNote
 from Models.event import Event
 from Models.payment import Payment
 from .form import CaseForm, CaseNoteForm, PaymentForm, EventForm
 from sqlalchemy import or_, desc
-from datetime import date, datetime
+from datetime import date
+from slugify import slugify
+from decorator import role_required
 
 case_bp = Blueprint("case", __name__)
 
-@case_bp.route('/')
-@login_required
-def index():
-    """Display all cases for the current lawyer"""
-    try:
-        # Get parameters
-        page = request.args.get('page', 1, type=int)
-        status_filter = request.args.get('status', '')
-        case_type_filter = request.args.get('type', '')
-        search_query = request.args.get('search', '').strip()
-        per_page = 12
-        
-        # Build query
-        query = Case.query.filter_by(user_id=current_user.id)
-        
-        # Apply filters
-        if status_filter:
-            query = query.filter(Case.status == status_filter)
-        if case_type_filter:
-            query = query.filter(Case.case_type == case_type_filter)
-        if search_query:
-            search_filter = or_(
-                Case.title.ilike(f'%{search_query}%'),
-                Case.description.ilike(f'%{search_query}%'),
-                Case.case_number.ilike(f'%{search_query}%'),
-                Case.opposing_party.ilike(f'%{search_query}%'),
-                Client.first_name.ilike(f'%{search_query}%'),
-                Client.last_name.ilike(f'%{search_query}%')
-            )
-            query = query.join(Client).filter(search_filter)
-        
-        # Order by most recently updated
-        cases = query.order_by(desc(Case.opened_date)).paginate(
-            page=page, per_page=per_page, error_out=False
-        )
-        
-        # Get stats for filters
-        case_stats = {
-            'total': Case.query.filter_by(user_id=current_user.id).count(),
-            'active': Case.query.filter_by(user_id=current_user.id, status='active').count(),
-            'pending': Case.query.filter_by(user_id=current_user.id, status='pending').count(),
-            'closed': Case.query.filter_by(user_id=current_user.id, status='closed').count()
-        }
-        
-        return render_template(
-            'cases/index.html',
-            cases=cases,
-            search_query=search_query,
-            status_filter=status_filter,
-            case_type_filter=case_type_filter,
-            case_stats=case_stats,
-            title='Cases'
-        )
-        
-    except Exception as e:
-        flash('An error occurred while loading cases.', 'error')
-        return redirect(url_for('dashboard.index'))
-
 @case_bp.route('/new-case/<int:client_id>', methods=['GET', 'POST'])
 @login_required
+@role_required(["Lawyer"])
 def add_case(client_id):
   """Add a new case"""
   form = CaseForm()
@@ -85,6 +30,7 @@ def add_case(client_id):
       # Create new case
       case = Case(
         title=form.title.data.strip(),
+        alias=slugify(form.title.data.strip()),
         description=form.description.data.strip() if form.description.data else None,
         case_type=form.case_type.data,
         court_name=form.court_name.data.strip() if form.court_name.data else None,
@@ -109,7 +55,7 @@ def add_case(client_id):
         db.session.commit()
       
       flash(f'Case "{case.title}" created successfully!', 'success')
-      return redirect(url_for('case.case_detail', case_id=case.unique_id))
+      return redirect(url_for('case.case_detail', case_id=case.alias))
         
     except Exception as e:
       db.session.rollback()
@@ -124,12 +70,12 @@ def add_case(client_id):
 
   return render_template('Main/new-case.html', **context)
 
-@case_bp.route('/case-details/<int:case_id>')
+@case_bp.route('/case-details/<string:case_id>')
 @login_required
 def case_detail(case_id):
   """View case details with notes, payments, and events"""
   try:
-    case = Case.query.filter_by(unique_id=case_id, lawyer_id=current_user.id).first()
+    case = Case.query.filter_by(alias=case_id, lawyer_id=current_user.id).first()
     
     # Get case notes (both internal and client visible)
     client = Client.query.get(case.client_id)
@@ -168,7 +114,44 @@ def case_detail(case_id):
       
   except Exception as e:
     flash(f'Error: {str(e)}', 'danger')
-    return redirect(url_for('dashboard.index'))
+    return redirect(request.referrer)
+
+@case_bp.route('/client/case-details/<string:case_id>')
+@login_required
+def client_case_detail(case_id):
+  """View case details with notes, payments, and events"""
+  try:
+    case = Case.query.filter_by(alias=case_id, client_id=current_user.id).first()
+    
+    lawyer = Lawyers.query.get(case.lawyer_id)
+
+    notes = CaseNote.query.filter_by(case_id=case.id, is_internal=False).order_by(desc(CaseNote.created_at)).all()
+    
+    # Get payments
+    payments = Payment.query.filter_by(case_id=case.id).order_by(desc(Payment.date_received)).all()
+    
+    # Get upcoming events
+    upcoming_events = Event.query.filter_by(case_id=case.id).filter(
+      Event.event_date >= date.today()
+    ).order_by(Event.event_date, Event.event_time).limit(5).all()
+    
+    # Calculate total payments
+    total_payments = sum(payment.amount for payment in payments)
+
+    context = {
+      "case": case,
+      "notes": notes,
+      "lawyer": lawyer,
+      "payments": payments,
+      "upcoming_events": upcoming_events,
+      "total_payments": total_payments,
+    }
+    
+    return render_template('Client/case-detail.html', **context)
+      
+  except Exception as e:
+    flash(f'Error: {str(e)}', 'danger')
+    return redirect(request.referrer)
 
 @case_bp.route('/new-note/<int:case_id>', methods=['POST', 'GET'])
 @login_required
@@ -187,19 +170,19 @@ def add_note(case_id):
       note = CaseNote(
         case_id=case.id,
         content=form.content.data.strip(),
-        is_internal=bool(form.is_internal.data)
+        is_internal=False if form.is_internal.data == "False" else True
       )
       
       db.session.add(note)
       db.session.commit()
       
       flash('Note added successfully!', 'success')
-      return redirect(url_for('case.case_detail', case_id=case.unique_id))
+      return redirect(url_for('case.case_detail', case_id=case.alias))
           
     except Exception as e:
       db.session.rollback()
       flash(f'Error:{str(e)}', 'danger')
-      return redirect(url_for('case.case_detail', case_id=case.unique_id))
+      return redirect(url_for('case.case_detail', case_id=case.alias))
 
   context = {
     "form": form,
@@ -209,11 +192,55 @@ def add_note(case_id):
 
   return render_template("Main/add-case-note.html", **context)
 
-@case_bp.route('/remove-note/<int:note_id>/<int:case_id>')
+@case_bp.route('/<string:case_id>/<int:case_note_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_case_note(case_id, case_note_id):
+  """Edit case information"""
+  try:
+    case = Case.query.filter_by(alias=case_id, lawyer_id=current_user.id).first()
+
+    if not case:
+      flash("Case not found", "danger")
+      return redirect(request.referrer)
+
+    case_note = CaseNote.query.filter_by(unique_id=case_note_id, case_id=case.id).first()
+
+    if not case_note:
+      flash("Case note not found", "danger")
+      return redirect(url_for('case.case_detail', case_id=case.alias))
+    
+    form = CaseNoteForm(obj=case_note)
+    
+    if form.validate_on_submit():
+      form.populate_obj(case_note)
+      if form.is_internal.data == "False":
+         case_note.is_internal = False
+      elif form.is_internal.data == "True":
+         case_note.is_internal = True
+      db.session.commit()
+      
+      flash('Case note updated successfully!', 'success')
+      return redirect(url_for('case.case_detail', case_id=case.alias))
+    
+    context = {
+      "form": form,
+      "case": case,
+      "case_note": case_note,
+      "back_url": url_for('case.case_detail', case_id=case.alias)
+    }
+
+    return render_template('Main/edit-case-note.html', **context)
+      
+  except Exception as e:
+    db.session.rollback()
+    flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('case.case_detail', case_id=case.alias))
+
+@case_bp.route('/remove-note/<int:note_id>/<string:case_id>')
 @login_required
 def remove_case_note(note_id, case_id):
   """Add a note to a case"""
-  case = Case.query.filter_by(unique_id=case_id).first()
+  case = Case.query.filter_by(alias=case_id).first()
 
   if not case:
     flash("Case not found", "danger")
@@ -223,19 +250,19 @@ def remove_case_note(note_id, case_id):
 
   if not case_note:
     flash("Case note not found", "danger")
-    return redirect(url_for('case.case_detail', case_id=case.unique_id))
+    return redirect(url_for('case.case_detail', case_id=case.alias))
       
   try:
     db.session.delete(case_note)
     db.session.commit()
     
     flash('Note removed successfully!', 'success')
-    return redirect(url_for('case.case_detail', case_id=case.unique_id))
+    return redirect(url_for('case.case_detail', case_id=case.alias))
         
   except Exception as e:
     db.session.rollback()
     flash(f'Error:{str(e)}', 'danger')
-    return redirect(url_for('case.case_detail', case_id=case.unique_id))
+    return redirect(url_for('case.case_detail', case_id=case.alias))
 
 @case_bp.route('/<int:case_id>/add_payment', methods=['POST'])
 @login_required
@@ -332,42 +359,35 @@ def add_event(case_id):
 @case_bp.route('/<int:case_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_case(case_id):
-    """Edit case information"""
-    try:
-        case = Case.query.filter_by(
-            id=case_id,
-            user_id=current_user.id
-        ).first_or_404()
-        
-        form = CaseForm(obj=case)
-        
-        if form.validate_on_submit():
-            case.title = form.title.data.strip()
-            case.description = form.description.data.strip() if form.description.data else None
-            case.case_type = form.case_type.data
-            case.status = form.status.data
-            case.court_name = form.court_name.data.strip() if form.court_name.data else None
-            case.case_number = form.case_number.data.strip() if form.case_number.data else None
-            case.opposing_party = form.opposing_party.data.strip() if form.opposing_party.data else None
-            case.opposing_counsel = form.opposing_counsel.data.strip() if form.opposing_counsel.data else None
-            
-            # If closing case, set closed date
-            if form.status.data == 'closed' and not case.closed_date:
-                case.closed_date = datetime.utcnow()
-            elif form.status.data != 'closed':
-                case.closed_date = None
-            
-            db.session.commit()
-            
-            flash(f'Case "{case.title}" updated successfully!', 'success')
-            return redirect(url_for('cases.case_detail', case_id=case.id))
-        
-        return render_template('cases/edit_case.html', form=form, case=case, title='Edit Case')
-        
-    except Exception as e:
-        db.session.rollback()
-        flash('An error occurred while updating the case.', 'error')
-        return redirect(url_for('cases.case_detail', case_id=case_id))
+  """Edit case information"""
+  try:
+    case = Case.query.filter_by(unique_id=case_id, lawyer_id=current_user.id).first()
+
+    if not case:
+      flash("Case not found", "danger")
+      return redirect(request.referrer)
+    
+    form = CaseForm(obj=case)
+    
+    if form.validate_on_submit():
+      form.populate_obj(case)
+      db.session.commit()
+      
+      flash('Case updated successfully!', 'success')
+      return redirect(url_for('case.case_detail', case_id=case.alias))
+    
+    context = {
+      "form": form,
+      "case": case,
+      "back_url": url_for('case.case_detail', case_id=case.alias)
+    }
+
+    return render_template('Main/edit-case.html', **context)
+      
+  except Exception as e:
+    db.session.rollback()
+    flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('case.case_detail', case_id=case.alias))
 
 @case_bp.route('/<int:case_id>/close', methods=['POST'])
 @login_required

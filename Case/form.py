@@ -15,16 +15,16 @@ class CaseForm(FlaskForm):
   ])
   case_type = SelectField('Case Type', choices=[
       ('', 'Select Case Type'),
-      ('criminal', 'Criminal Law'),
-      ('civil', 'Civil Litigation'),
-      ('family', 'Family Law'),
-      ('corporate', 'Corporate Law'),
-      ('real_estate', 'Real Estate'),
-      ('intellectual_property', 'Intellectual Property'),
-      ('employment', 'Employment Law'),
-      ('personal_injury', 'Personal Injury'),
-      ('immigration', 'Immigration Law'),
-      ('other', 'Other')
+      ('Criminal Law', 'Criminal Law'),
+      ('Civil Litigation', 'Civil Litigation'),
+      ('Family Law', 'Family Law'),
+      ('Corporate Law', 'Corporate Law'),
+      ('Real Estate', 'Real Estate'),
+      ('Intellectual Property', 'Intellectual Property'),
+      ('Employment Law', 'Employment Law'),
+      ('Personal Injury', 'Personal Injury'),
+      ('Immigration Law', 'Immigration Law'),
+      ('Other', 'Other')
   ], validators=[DataRequired()])
   court_name = StringField('Court Name', validators=[
       Optional(),
@@ -49,9 +49,10 @@ class CaseNoteForm(FlaskForm):
     Length(min=1, max=2000)
   ])
   is_internal = SelectField('Note Type', choices=[
+    ("", '----'),
     ("False", 'Client Visible'),
     ("True", 'Internal Only')
-  ], default='client_visible')
+  ], validators=[DataRequired()])
 
 class PaymentForm(FlaskForm):
   amount = DecimalField('Amount', validators=[

@@ -6,11 +6,13 @@ from Models.case import Case
 from Models.payment import Payment
 from sqlalchemy import or_
 from .form import ClientForm
+from decorator import role_required
 
 client_bp = Blueprint("client", __name__)
 
 @client_bp.route('/add/client', methods=['GET', 'POST'])
 @login_required
+@role_required(["Lawyer"])
 def add_client():
   """Add a new client"""
   form = ClientForm()
@@ -76,53 +78,46 @@ def client_profile(client_id):
     flash(f'Error: {str(e)}', 'danger')
     return redirect(url_for('dashboard.index'))
 
-@client_bp.route('/<int:client_id>/edit', methods=['GET', 'POST'])
+@client_bp.route('/client/<int:client_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_client(client_id):
   """Edit client information"""
-  try:
-      client = Client.query.filter_by(
-          id=client_id,
-          user_id=current_user.id
-      ).first()
+  client = Client.query.filter_by(unique_id=client_id, lawyer_id=current_user.id).first()
+
+  if not client:
+    flash("Client not found", "danger")
+    return redirect(request.referrer)
+  
+  form = ClientForm(obj=client)
+  
+  if form.validate_on_submit():
+    try:
+      # Check if email is being changed and if it already exists
+      if form.email.data and form.email.data.lower().strip() != client.email:
+        existing_client = Client.query.filter_by(lawyer_id=current_user.id, email=form.email.data.lower().strip()).first()
+        
+        if existing_client and existing_client.id != client.id:
+          flash(f'A client with the email {form.email.data} already exists.', 'danger')
+          return redirect(request.referrer)
       
-      form = ClientForm(obj=client)
+      # Update client information
+      form.populate_obj(client)
+      db.session.commit()
       
-      if form.validate_on_submit():
-          try:
-              # Check if email is being changed and if it already exists
-              if form.email.data and form.email.data.lower().strip() != client.email:
-                  existing_client = Client.query.filter_by(
-                      user_id=current_user.id,
-                      email=form.email.data.lower().strip()
-                  ).first()
-                  
-                  if existing_client and existing_client.id != client.id:
-                      flash('A client with this email already exists.', 'error')
-                      return render_template('clients/edit_client.html', form=form, client=client, title='Edit Client')
-              
-              # Update client information
-              client.first_name = form.first_name.data.strip()
-              client.last_name = form.last_name.data.strip()
-              client.email = form.email.data.lower().strip() if form.email.data else None
-              client.phone = form.phone.data.strip() if form.phone.data else None
-              client.address = form.address.data.strip() if form.address.data else None
-              client.client_type = form.client_type.data
-              
-              db.session.commit()
-              
-              flash(f'Client {client.full_name} updated successfully!', 'success')
-              return redirect(url_for('clients.client_detail', client_id=client.id))
-              
-          except Exception as e:
-              db.session.rollback()
-              flash('An error occurred while updating the client. Please try again.', 'error')
-      
-      return render_template('clients/edit_client.html', form=form, client=client, title='Edit Client')
-      
-  except Exception as e:
-      flash('Client not found or you do not have permission to edit this client.', 'error')
-      return redirect(url_for('clients.index'))
+      flash(f'Client {client.full_name} updated successfully!', 'success')
+      return redirect(url_for('client.client_profile', client_id=client.unique_id))
+        
+    except Exception as e:
+      db.session.rollback()
+      flash(f'Error: {str(e)}', 'danger')
+  
+  context = {
+    "form": form,
+    "client": client,
+    "back_url": request.referrer,
+  }
+
+  return render_template('Main/edit-client.html', **context)
 
 @client_bp.route('/<int:client_id>/delete', methods=['POST'])
 @login_required

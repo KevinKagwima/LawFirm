@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, make_response
-from flask_login import login_required, login_user, logout_user, fresh_login_required, current_user
+from flask_login import login_required, login_user, logout_user, current_user
 from flask_bcrypt import Bcrypt
 from Models.base_model import db, get_local_time
-from Models.users import Lawyers
+from Models.users import Lawyers, Client
 from .form import RegistrationForm, LoginForm, ResetPasswordForm, ResetPasswordRequestForm
 from datetime import timedelta
 # from Utils.email import send_email
@@ -56,15 +56,13 @@ def register():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-  # if current_user.is_authenticated:
-  #   return redirect(url_for('dashboard.index'))
-  
   form = LoginForm()
   
   if form.validate_on_submit():
     try:
       email = form.email.data.lower().strip()
-      user = Lawyers.query.filter_by(email=email, is_active=True).first()
+      
+      user = Lawyers.query.filter_by(email=email, is_active=True).first() or Client.query.filter_by(email=email, is_active=True).first()
 
       if not user:
         flash("No user with that email address", "danger")
@@ -76,7 +74,10 @@ def login():
         # Redirect to next page if it exists and is safe
         next_page = request.args.get('next')
         if not next_page:
-          next_page = url_for('dashboard.index')
+          if current_user.role_name == "Client":
+            next_page = url_for('dashboard.client_index')
+          else:
+            next_page = url_for('dashboard.index')
         
         flash(f'Welcome back, {user.first_name}, {user.last_name}!', 'success')
         return redirect(next_page)
@@ -87,7 +88,6 @@ def login():
     except Exception as e:
       flash(f'Error: {str(e)}', 'danger')
       return redirect(url_for('auth.login'))
-      # Log the error in production
   
   context = {
     "form": form

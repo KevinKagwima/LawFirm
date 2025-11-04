@@ -52,9 +52,15 @@
   <div class="content-box">
     <aside class="sidebar">
       <div class="sidebar-header">
+        {% if current_user.role_name == "Lawyer" %}
         <a href="{{ url_for('dashboard.index') }}">
           <h1>LegalCase</h1>
         </a>
+        {% else %}
+        <a href="{{ url_for('dashboard.client_index') }}">
+          <h1>LegalCase</h1>
+        </a>
+        {% endif %}
         <span onclick="closeSideBar()" id="close-sidebar">&Cross;</span>
       </div>
       <nav class="nav">

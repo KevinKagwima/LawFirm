@@ -8,14 +8,13 @@ from Clients.routes import client_bp
 from Auth.routes import auth_bp
 from Errors.handlers import errors_bp
 from Models.base_model import db
-from Models.users import Lawyers
+from Models.users import Lawyers, Client
 from config import Config
 import os
 
 def create_app():
   app = Flask(__name__)
   app.config.from_object(Config)
-  # print(os.environ.get("DATABASE_URL"))
 
   db.init_app(app)
   migrate = Migrate(app, db)
@@ -40,7 +39,7 @@ def create_app():
   @login_manager.user_loader
   def load_user(user_id):
     try:
-      return Lawyers.query.filter_by(unique_id=user_id).first()
+      return Lawyers.query.filter_by(unique_id=user_id).first() or Client.query.filter_by(unique_id=user_id).first()
     except:
       flash("Unable to load user", category="danger")
       abort(500)

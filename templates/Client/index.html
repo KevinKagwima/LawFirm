@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static',filename='css/Main/style.css')}}">
+<link rel="stylesheet" href="{{url_for('static',filename='css/Client/client.css')}}">
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block nav %}
+<a data-tab="dashboard" class="nav-item active">
+  <i class="fas fa-home"></i>
+  Dashboard
+</a>
+{% endblock %}
+
+{% block body %}
+<div id="dashboard" class="tabContent active">
+  <div class="header">
+    <div class="page-title">
+      <h1>Dashboard</h1>
+      <div class="notifications-dropdown">
+        <button class="notifications-toggle">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" id="notification-badge">0</span>
+        </button>
+
+        <div class="notifications-panel">
+          <div class="notifications-header">
+            <h4>Notifications</h4>
+            <button class="mark-all-read">Mark all as read</button>
+          </div>
+
+          <div class="notifications-list" id="notifications-list">
+            <!-- Notifications will be loaded here via JavaScript -->
+            <div class="empty-state">
+              <i class="fas fa-bell-slash"></i>
+              <p>No new notifications</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="case-box">
+    <div class="recent-case-box">
+      {% for case in cases if case.status.ACTIVE %}
+      <div class="case">
+        <div class="case-info">
+          <span></span>
+          <h1 title="{{ case.title }}">{{ case.title }}</h1>
+          {% if case.description %}
+          <p>{{ case.description }}</p>
+          {% endif %}
+        </div>
+        <div class="case-stats">
+          <div class="stat">
+            <h4>Opposing Party</h4>
+            <p>{{ case.opposing_party }}</p>
+          </div>
+          <div class="stat">
+            <h4>Opposing Counsel</h4>
+            <p>{{ case.opposing_counsel }}</p>
+          </div>
+          <div class="stat">
+            <h4>Court Name</h4>
+            <p>{{ case.court_name }}</p>
+          </div>
+        </div>
+        <div class="case-actions">
+          <a href="{{ url_for('case.client_case_detail', case_id=case.alias) }}">
+            <button class="btn btn-primary">Open Case Notes</button>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="other-cases-box">
+      {% if cases %}
+      <div class="table-box">
+        <table id="patients-table">
+          <thead>
+            <tr>
+              <th>Client ID</th>
+              <th>Full Name</th>
+              <th>Phone Number</th>
+              <th>Email Address</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for client in clients %}
+            <tr>
+              <td><b>{{ client.unique_id }}</b></td>
+              <td>
+                <a href="{{ url_for('client.client_profile', client_id=client.unique_id) }}">
+                  {{ client.first_name }} {{ client.last_name }}
+                  <i class="fas fa-arrow-up-right-from-square"></i>
+                </a>
+              </td>
+              <td>{{ client.phone }}</td>
+              <td>{{ client.email }}</td>
+              <td></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="else">
+        <p style="color: var(--danger);">No case history</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='Js/home.js') }}"></script>
+<script src="{{ url_for('static', filename='Js/notification.js') }}"></script>
+{% endblock %}
