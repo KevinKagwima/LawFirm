@@ -13,8 +13,7 @@ class Payment(BaseModel, db.Model):
   amount = db.Column(db.Integer(), nullable=False)
   date_received = db.Column(db.Date, nullable=False, default=get_local_time())
   payment_method = db.Column(db.Enum(PaymentType))
-  reference = db.Column(db.String(100))  # Check number, transaction ID, etc.
-  notes = db.Column(db.Text)
+  reference = db.Column(db.String(100))
   case_id = db.Column(db.Integer, db.ForeignKey('cases.id'), nullable=False)
   created_at = db.Column(db.DateTime, default=get_local_time())
   

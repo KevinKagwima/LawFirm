@@ -10,17 +10,10 @@ Case Details
 {% endblock %}
 
 {% block nav %}
-{% if current_user.role_name == "Lawyer" %}
 <a href="{{ url_for('dashboard.index') }}" class="nav-item">
   <i class="fas fa-chevron-left"></i>
   Back
 </a>
-{% else %}
-<a href="{{ url_for('dashboard.client_index') }}" class="nav-item">
-  <i class="fas fa-chevron-left"></i>
-  Back
-</a>
-{% endif %}
 {% endblock %}
 
 {% block body %}
@@ -44,11 +37,9 @@ Case Details
     <div class="case-box container-box">
       <div class="header">
         <h1>Case Summary</h1>
-        {% if current_user.role_name == "Lawyer" %}
         <a href="{{ url_for('case.edit_case', case_id=case.unique_id) }}">
           <i title="Edit case details" class="fas fa-edit"></i>
         </a>
-        {% endif %}
       </div>
       <div class="case-box-details">
         <div class="detail-note">
@@ -60,17 +51,15 @@ Case Details
           <p>{{ case.case_type }}</p>
         </div>
       </div>
-
+      <div class="case-actions">
+        <button id="OpenPaymentModalBtn" class="btn btn-primary">Add Payment</button>
+      </div>
     </div>
 
     <div class="case-note-box container-box">
       <div class="header">
         <h1>Case Notes</h1>
-        {% if current_user.role_name == "Lawyer" %}
-        <a href="{{ url_for('case.add_note', case_id=case.unique_id) }}">
-          <button class="btn btn-primary">Add Note</button>
-        </a>
-        {% endif %}
+        <button id="OpenNoteModalBtn" class="btn btn-primary">Add Note</button>
       </div>
       <div class="case-box-details">
         {% if notes %}
@@ -78,7 +67,7 @@ Case Details
         <div class="case-note">
           <div class="case-note-header">
             <h4>{{ note.created_at.strftime("%b %d, %Y at %I:%M %p") }}</h4>
-            {% if current_user.role_name == "Lawyer" %}
+            {% if note.is_editable %}
             <div class="case-note-actions">
               <a href="{{ url_for('case.edit_case_note', case_id=case.alias, case_note_id=note.unique_id) }}">
                 <i class="fas fa-edit"></i>
@@ -112,11 +101,7 @@ Case Details
 
     <div class="client-box container-box">
       <div class="header">
-        {% if current_user.role_name == "Lawyer" %}
         <h1>Client's Profile</h1>
-        {% elif current_user.role_name == "Client" %}
-        <h1>Lawyer's Profile</h1>
-        {% endif %}
       </div>
       <div class="case-box-details">
         <div class="detail-note">
@@ -151,18 +136,71 @@ Case Details
         </div>
         {% endif %}
       </div>
-      {% if current_user.role_name == "Lawyer" %}
       <div class="case-actions">
         <a href="{{ url_for('case.close_case', case_id=case.unique_id) }}">
           <button class="btn btn-primary">Close Case</button>
         </a>
       </div>
-      {% endif %}
     </div>
 
+  </div>
+</div>
+
+<div id="NoteFormModal" class="modal active">
+  <div class="modal-content">
+    <span class="close close-note">&times;</span>
+    <h2>Add Note</h2>
+    <p>Add new details of the case</p>
+    <form action="{{ url_for('case.add_note', case_id=case.unique_id) }}" method="post">
+      {{ note_form.csrf_token }}
+
+      <div class="form-group extend">
+        {{ note_form.content.label }}
+        {{ note_form.content(placeholder="Enter Note Content") }}
+      </div>
+
+      <div class="form-group extend">
+        {{ note_form.is_internal.label }}
+        {{ note_form.is_internal }}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Add Note</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="PaymentFormModal" class="modal">
+  <div class="modal-content">
+    <span class="close close-payment">&times;</span>
+    <h2>Record Payment</h2>
+    <p></p>
+    <form action="{{ url_for('case.add_payment', case_id=case.unique_id) }}" method="post">
+      {{ payment_form.csrf_token }}
+      <div class="form-group extend">
+        {{ payment_form.amount.label }}
+        {{ payment_form.amount(placeholder="Enter Payment Amount") }}
+      </div>
+
+      <div class="form-group extend">
+        {{ payment_form.payment_method.label }}
+        {{ payment_form.payment_method }}
+      </div>
+
+      <div class="form-group extend">
+        {{ payment_form.reference.label }}
+        {{ payment_form.reference(placeholder="Enter Reference Number/ Cheque Number") }}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Add Payment</button>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}
 
 {% block script %}
+<script src="{{ url_for('static', filename='js/modal.js') }}"></script>
 {% endblock %}

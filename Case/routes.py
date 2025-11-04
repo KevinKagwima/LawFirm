@@ -49,7 +49,8 @@ def add_case(client_id):
         initial_note = CaseNote(
           case_id=case.id,
           content="Case opened",
-          is_internal=False
+          is_internal=False,
+          is_editable=False,
         )
         db.session.add(initial_note)
         db.session.commit()
@@ -153,20 +154,19 @@ def client_case_detail(case_id):
     flash(f'Error: {str(e)}', 'danger')
     return redirect(request.referrer)
 
-@case_bp.route('/new-note/<int:case_id>', methods=['POST', 'GET'])
+@case_bp.route('/new-note/<int:case_id>', methods=['POST'])
 @login_required
 def add_note(case_id):
   """Add a note to a case"""
-  case = Case.query.filter_by(unique_id=case_id, lawyer_id=current_user.id).first()
-
-  if not case:
-    flash("Case not found", "danger")
-    return redirect(request.referrer)
-  
   form = CaseNoteForm()
-    
   if form.validate_on_submit():
     try:
+      case = Case.query.filter_by(unique_id=case_id, lawyer_id=current_user.id).first()
+
+      if not case:
+        flash("Case not found", "danger")
+        return redirect(request.referrer)
+    
       note = CaseNote(
         case_id=case.id,
         content=form.content.data.strip(),
@@ -184,13 +184,10 @@ def add_note(case_id):
       flash(f'Error:{str(e)}', 'danger')
       return redirect(url_for('case.case_detail', case_id=case.alias))
 
-  context = {
-    "form": form,
-    "case": case,
-    "back_url": request.referrer,
-  }
-
-  return render_template("Main/add-case-note.html", **context)
+  if form.errors != {}:
+    for err_msg in form.errors.values():
+      flash(f"{err_msg}", "danger")
+    return redirect(url_for('admin.dashboard'))
 
 @case_bp.route('/<string:case_id>/<int:case_note_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -264,51 +261,52 @@ def remove_case_note(note_id, case_id):
     flash(f'Error:{str(e)}', 'danger')
     return redirect(url_for('case.case_detail', case_id=case.alias))
 
-@case_bp.route('/<int:case_id>/add_payment', methods=['POST'])
+@case_bp.route('/<int:case_id>/add-payment', methods=['POST'])
 @login_required
 def add_payment(case_id):
-    """Add a payment to a case"""
+  """Add a payment to a case"""
+  form = PaymentForm()
+  
+  if form.validate_on_submit():
     try:
-        case = Case.query.filter_by(
-            id=case_id,
-            user_id=current_user.id
-        ).first_or_404()
-        
-        form = PaymentForm()
-        
-        if form.validate_on_submit():
-            payment = Payment(
-                case_id=case_id,
-                amount=form.amount.data,
-                date_received=form.date_received.data,
-                payment_method=form.payment_method.data,
-                reference=form.reference.data.strip() if form.reference.data else None,
-                notes=form.notes.data.strip() if form.notes.data else None
-            )
-            
-            db.session.add(payment)
-            db.session.commit()
-            
-            # Add automatic note about payment
-            payment_note = CaseNote(
-                case_id=case_id,
-                content=f"Payment received: ${form.amount.data:.2f} via {form.payment_method.data}",
-                is_internal=False
-            )
-            db.session.add(payment_note)
-            db.session.commit()
-            
-            flash('Payment recorded successfully!', 'success')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    flash(f'{getattr(form, field).label.text}: {error}', 'error')
-            
-    except Exception as e:
-        db.session.rollback()
-        flash('An error occurred while recording the payment.', 'error')
+      case = Case.query.filter_by(unique_id=case_id, lawyer_id=current_user.id).first()
+
+      if not case:
+        flash("Case not found", "danger")
+        return redirect(request.referrer)
     
-    return redirect(url_for('cases.case_detail', case_id=case_id))
+      payment = Payment(
+        case_id=case.id,
+        amount=form.amount.data,
+        payment_method=form.payment_method.data,
+        reference=form.reference.data.strip() if form.reference.data else None,
+      )
+      
+      db.session.add(payment)
+      db.session.commit()
+      
+      # Add automatic note about payment
+      payment_note = CaseNote(
+        case_id=case.id,
+        content=f"Payment received: Ksh{form.amount.data} via {form.payment_method.data}",
+        is_internal=False,
+        is_editable=False,
+      )
+      db.session.add(payment_note)
+      db.session.commit()
+      
+      flash('Payment recorded successfully!', 'success')
+
+    except Exception as e:
+      db.session.rollback()
+      flash(f'Error: {str(e)}', 'danger')
+
+  else:
+    for field, errors in form.errors.items():
+      for error in errors:
+        flash(f'{getattr(form, field).label.text}: {error}', 'danger')
+  
+  return redirect(url_for('case.case_detail', case_id=case.alias))
 
 @case_bp.route('/<int:case_id>/add_event', methods=['POST'])
 @login_required

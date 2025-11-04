@@ -48,6 +48,7 @@ class CaseNote(BaseModel, db.Model):
   
   # For future client portal: internal notes vs client-visible notes
   is_internal = db.Column(db.Boolean)
+  is_editable = db.Column(db.Boolean, default=True)
   
   def __repr__(self):
     return f'<CaseNote {self.id} - Case {self.case_id}>'

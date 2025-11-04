@@ -56,26 +56,18 @@ class CaseNoteForm(FlaskForm):
 
 class PaymentForm(FlaskForm):
   amount = DecimalField('Amount', validators=[
-      DataRequired(),
-      NumberRange(min=0.01, message='Amount must be greater than 0')
-  ], places=2)
-  date_received = DateField('Date Received', validators=[
-      DataRequired()
-  ], default=datetime.now())
-  payment_method = SelectField('Payment Method', choices=[
-      ('cash', 'Cash'),
-      ('check', 'Check'),
-      ('bank_transfer', 'Bank Transfer'),
-      ('card', 'Credit/Debit Card'),
-      ('online', 'Online Payment')
-  ], validators=[DataRequired()])
-  reference = StringField('Reference/Check Number', validators=[
-      Optional(),
-      Length(max=100)
+    DataRequired(),
+    NumberRange(min=1, message='Amount must be greater than 0')
   ])
-  notes = TextAreaField('Payment Notes', validators=[
-      Optional(),
-      Length(max=500)
+  payment_method = SelectField('Payment Method', choices=[
+    ('Cash', 'Cash'),
+    ('Cheque', 'Check'),
+    ('Bank', 'Bank Transfer'),
+    ('Card', 'Card')
+  ], validators=[DataRequired()])
+  reference = StringField('Reference/Check Number (Optional)', validators=[
+    Optional(),
+    Length(max=100)
   ])
 
 class EventForm(FlaskForm):
