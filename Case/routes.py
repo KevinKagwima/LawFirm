@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from Models.base_model import db, get_local_time
 from Models.users import Client, Lawyers
-from Models.case import Case, CaseNote
+from Models.case import Case, CaseNote, CaseFiles
 from Models.event import Event
 from Models.payment import Payment
 from .form import CaseForm, CaseNoteForm, PaymentForm, EventForm
@@ -10,8 +10,18 @@ from sqlalchemy import or_, desc
 from datetime import date
 from slugify import slugify
 from decorator import role_required
+from .aws_credentials import awsCredentials
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
+import boto3
 
 case_bp = Blueprint("case", __name__)
+s3 = boto3.resource(
+  "s3",
+  aws_access_key_id = awsCredentials.aws_access_key,
+  aws_secret_access_key = awsCredentials.aws_secret_key
+)
+bucket_name = awsCredentials.bucket_name
+region = awsCredentials.region
 
 @case_bp.route('/new-case/<int:client_id>', methods=['GET', 'POST'])
 @login_required
@@ -102,6 +112,7 @@ def case_detail(case_id):
     context = {
       "case": case,
       "notes": notes,
+      "case_files": CaseFiles.query.all(),
       "client": client,
       "payments": payments,
       "upcoming_events": upcoming_events,
@@ -142,6 +153,7 @@ def client_case_detail(case_id):
     context = {
       "case": case,
       "notes": notes,
+      "case_files": CaseFiles.query.all(),
       "lawyer": lawyer,
       "payments": payments,
       "upcoming_events": upcoming_events,
@@ -172,10 +184,13 @@ def add_note(case_id):
         content=form.content.data.strip(),
         is_internal=False if form.is_internal.data == "False" else True
       )
-      
       db.session.add(note)
       db.session.commit()
-      
+
+      if form.case_files.data:
+        files = request.files.getlist("case_files")
+        upload_file(note.id, files, case.id)
+
       flash('Note added successfully!', 'success')
       return redirect(url_for('case.case_detail', case_id=case.alias))
           
@@ -188,6 +203,44 @@ def add_note(case_id):
     for err_msg in form.errors.values():
       flash(f"{err_msg}", "danger")
     return redirect(url_for('admin.dashboard'))
+
+def upload_file(note_id, files, case_id):
+  case_note = CaseNote.query.get(note_id)
+  case = Case.query.get(case_id)
+  try:
+    for file in files:
+      filename = f"{case.alias}/{file.filename}"
+      filetype = file.filename.split(".")[-1]
+      case_files = CaseFiles(
+        file_name = filename,
+        case_note_id = case_note.id,
+        file_type = filetype
+      )
+      s3.Bucket(bucket_name).upload_fileobj(file, filename)
+      db.session.add(case_files)
+      db.session.commit()
+    flash("Files uploaded successfully", "success")
+  except NoCredentialsError:
+    db.session.rollback()
+    flash("Credentials not available", "danger")
+    return redirect(url_for('case.case_detail', case_id=case.alias))
+  except PartialCredentialsError:
+    db.session.rollback()
+    flash("Incomplete credentials provided", "danger")
+    return redirect(url_for('case.case_detail', case_id=case.alias))
+  except ClientError as e:
+    db.session.rollback()
+    flash(f"Client Error: {e.response['Error']['Message']}", "danger")
+    return redirect(url_for('case.case_detail', case_id=case.alias))
+  except Exception as e:
+    db.session.rollback()
+    flash(f"Error: {repr(e)}", "danger")
+    return redirect(url_for('case.case_detail', case_id=case.alias))
+
+@login_required
+def remove_case_files(case_file):
+  s3.Bucket(bucket_name).Object(case_file.file_name).delete()
+  db.session.commit()
 
 @case_bp.route('/<string:case_id>/<int:case_note_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -209,7 +262,7 @@ def edit_case_note(case_id, case_note_id):
     form = CaseNoteForm(obj=case_note)
     
     if form.validate_on_submit():
-      form.populate_obj(case_note)
+      case_note.content = form.content.data
       if form.is_internal.data == "False":
          case_note.is_internal = False
       elif form.is_internal.data == "True":
@@ -248,6 +301,10 @@ def remove_case_note(note_id, case_id):
   if not case_note:
     flash("Case note not found", "danger")
     return redirect(url_for('case.case_detail', case_id=case.alias))
+  
+  case_files = CaseFiles.query.filter_by(case_note_id=case_note.id).all()
+  for case_file in case_files:
+    remove_case_files(case_file)
       
   try:
     db.session.delete(case_note)
@@ -288,7 +345,7 @@ def add_payment(case_id):
       # Add automatic note about payment
       payment_note = CaseNote(
         case_id=case.id,
-        content=f"Payment received: Ksh{form.amount.data} via {form.payment_method.data}",
+        content=f"Payment of Ksh{form.amount.data} received via {form.payment_method.data}",
         is_internal=False,
         is_editable=False,
       )

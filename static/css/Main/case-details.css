@@ -42,6 +42,20 @@
   box-shadow: none;
 }
 
+.payment-box {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.payment {
+  background-color: var(--color-light-grey-2);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.9rem;
+}
+
 .header h1 {
   font-size: 1.2rem;
 }
@@ -74,6 +88,29 @@
   justify-content: space-between;
 }
 
+.case-files-box {
+  margin-block: 0.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.case-file {
+  padding: 0.5rem;
+  outline: 1px;
+  background-color: var(--color-light-grey-2);
+  outline: 2px solid var(--color-accent-blue);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.case-file h4,
+.case-file i {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
 .case-note-actions {
   display: flex;
   align-items: center;
@@ -92,9 +129,14 @@
   margin-top: 1rem;
 }
 
-.case-actions a button {
+.case-actions a button,
+.case-actions button {
   width: 100%;
   background-color: var(--danger);
+}
+
+.case-actions button {
+  background-color: var(--color-accent-green);
 }
 
 .internal-badge,

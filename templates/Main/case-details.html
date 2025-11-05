@@ -50,6 +50,20 @@ Case Details
           <h4>Case Type</h4>
           <p>{{ case.case_type }}</p>
         </div>
+        {% if payments %}
+        <hr id="hr">
+        <div class="detail-note">
+          <h4>Payment Records</h4>
+          <div class="payment-box">
+            {% for payment in payments %}
+            <div class="payment">
+              <h4>Amount</h4>
+              <p>{{ "Ksh {:,}".format(payment.amount) }}</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
       </div>
       <div class="case-actions">
         <button id="OpenPaymentModalBtn" class="btn btn-primary">Add Payment</button>
@@ -80,6 +94,19 @@ Case Details
           </div>
           <div class="case-note-body">
             <p>{{ note.content }}</p>
+            {% if note.case_files %}
+            <div class="case-files-box">
+              {% for case_file in case_files if case_file.case_note_id == note.id %}
+              <div class="case-file">
+                <a style="display: flex; align-items: center; gap:1rem" download="true"
+                  href="https://lawfirm1234.s3.eu-north-1.amazonaws.com/{{ case_file.file_name }}">
+                  <h4>{{ case_file.file_name|truncate(20) }}</h4>
+                  <i class="fas fa-download"></i>
+                </a>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
           </div>
           <div class="case-note-footer">
             {% if note.is_internal %}
@@ -151,7 +178,7 @@ Case Details
     <span class="close close-note">&times;</span>
     <h2>Add Note</h2>
     <p>Add new details of the case</p>
-    <form action="{{ url_for('case.add_note', case_id=case.unique_id) }}" method="post">
+    <form action="{{ url_for('case.add_note', case_id=case.unique_id) }}" method="post" enctype="multipart/form-data">
       {{ note_form.csrf_token }}
 
       <div class="form-group extend">
@@ -162,6 +189,11 @@ Case Details
       <div class="form-group extend">
         {{ note_form.is_internal.label }}
         {{ note_form.is_internal }}
+      </div>
+
+      <div class="form-group extend">
+        {{ note_form.case_files.label }}
+        {{ note_form.case_files }}
       </div>
 
       <div class="form-actions">

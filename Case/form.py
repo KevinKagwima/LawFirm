@@ -1,6 +1,7 @@
 # cases/forms.py
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, DateField, DecimalField
+from flask_wtf.file import MultipleFileField, FileAllowed
 from wtforms.validators import DataRequired, Length, Optional, NumberRange
 from datetime import datetime
 
@@ -53,6 +54,10 @@ class CaseNoteForm(FlaskForm):
     ("False", 'Client Visible'),
     ("True", 'Internal Only')
   ], validators=[DataRequired()])
+  case_files = MultipleFileField("Upload Case Files (Optional)", validators=[
+    Optional(),
+    FileAllowed(['jpg', 'png', 'pdf', 'jpeg', 'Xlsx', 'docx'], 'Images (jpg, png, jpeg) or PDFs and XLs, DOCs only!')
+  ])
 
 class PaymentForm(FlaskForm):
   amount = DecimalField('Amount', validators=[

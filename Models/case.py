@@ -49,6 +49,16 @@ class CaseNote(BaseModel, db.Model):
   # For future client portal: internal notes vs client-visible notes
   is_internal = db.Column(db.Boolean)
   is_editable = db.Column(db.Boolean, default=True)
+  case_files = db.relationship('CaseFiles', backref='case_files', lazy='dynamic', cascade='all, delete-orphan')
   
   def __repr__(self):
     return f'<CaseNote {self.id} - Case {self.case_id}>'
+
+class CaseFiles(BaseModel, db.Model):
+  __tablename__ = "case_files"
+  file_name = db.Column(db.String(200), nullable=False)
+  file_type = db.Column(db.String(10), nullable=False)
+  case_note_id = db.Column(db.Integer(), db.ForeignKey("case_notes.id"))
+
+  def __repr__(self):
+    return f'<CaseFile {self.file_name}>'
